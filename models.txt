@@ -1,0 +1,6 @@
+SELECT p.lib_prd as name , price.uprice_wt as price 
+FROM produits as p
+JOIN tarifs_produit as price ON p.id = price.id
+
+sev_user 
+
