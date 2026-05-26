@@ -1,0 +1,11 @@
+192.168.1.14:3554	
+
+
+
+{
+    "lib_prd": "ALPINO Cookies bonbons 150g",
+    "contenu": "12.200000",
+    "ref_prd": "4001565",
+    "unite_contenu": "Kg",
+    "uprice_wt": "99.200000"
+}
