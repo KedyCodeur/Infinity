@@ -2,7 +2,7 @@
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
-require("dotenv").config({path : path.join(__dirname,"..",".gitignore",".env")})
+require("dotenv").config({path : path.join(__dirname,"..",".env")})
 
 const ACCESS_SIGN = process.env.ACCESS_SIGN;
 const REFRESH_SIGN = process.env.REFRESH_SIGN;
@@ -23,13 +23,13 @@ const refresh = (req,res) => {
             if (err) return res.status(403).json({err : "Refresh Token is invalid"})
                 const username = decode.username;
                 
-                const accesToken = jwt.sign(
+                const accessToken = jwt.sign(
                     {"username" : username},
                     ACCESS_SIGN,
                     {expiresIn : "300s"}
                 )
 
-                res.json({"accesToken" : accesToken})
+                res.json({"accessToken" : accessToken})
 
         }
     )

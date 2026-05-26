@@ -1,3 +1,18 @@
 root root 3306
 
 sev user 
+
+//lib_prd -> label Name  
+
+//unit contenu KG L 
+
+// contenu 
+
+// ref_prd
+
+// -> produits 
+
+
+//  uprice_wt -> tarifs_produits 
+
+//qte  unites_produits

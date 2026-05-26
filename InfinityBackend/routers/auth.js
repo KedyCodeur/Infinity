@@ -4,11 +4,9 @@ const authControllers = require(path.join(__dirname,"..","controllers","authCont
 
 const router = express.Router();
 
-const test = (req,res) => {
-    res.json("çalıştı");
-}
+
 
 router.post("/login",authControllers.login);
-router.post("/register",test);
+
 
 module.exports = router;

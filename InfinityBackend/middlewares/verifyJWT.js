@@ -2,7 +2,7 @@
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
-require("dotenv").config({path : path.join(__dirname,"..",".gitignore",".env")})
+require("dotenv").config({path : path.join(__dirname,"..",".env")})
 
 const ACCESS_SIGN = process.env.ACCESS_SIGN;
 
@@ -30,3 +30,4 @@ const verify = (req,res,next) => {
 };
 
 module.exports = verify;
+
