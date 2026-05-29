@@ -1,0 +1,9 @@
+PORT = 1234
+ACCESS_SIGN = 1231241asdasdaf1231eqsfasdadasdada123123131312312eadf1dasdasdasd
+REFRESH_SIGN = 1231241asdasdaf1231eqsfasdadasdada123123131312312eadf1dasdasdasd
+
+HOST: 192.1.1.1
+USER: root
+PASSWORD: root
+DBNAME: db
+DBPORT : 3306
