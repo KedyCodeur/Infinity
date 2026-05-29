@@ -1,6 +1,7 @@
 192.168.1.14:3554	
 
-
+const agirlik = 12.200;
+const gosterim = parseFloat(agirlik.toString()); 
 
 {
     "lib_prd": "ALPINO Cookies bonbons 150g",

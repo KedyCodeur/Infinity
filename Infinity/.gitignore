@@ -40,12 +40,13 @@ app-example
 
 # generated native folders
 /ios
-!android/
-android/.gradle/
-android/build/
-android/app/build/
-android/app/.cxx/
-android/app/.externalNativeBuild/
-android/local.properties
-android/*.iml
-.idea/
+/android/
+
+!/android/app/src/main/java/
+!/android/app/src/main/AndroidManifest.xml
+!/android/app/build.gradle
+!/android/gradle/
+!/android/gradlew
+!/android/gradlew.bat
+!/android/settings.gradle
+!/android/build.gradle
