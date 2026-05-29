@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable , FlatList} from 'react-native'
+import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable , FlatList , NativeModules} from 'react-native'
 import React, { useState , useRef , useEffect} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from "@/components/Header"
@@ -8,6 +8,8 @@ import Animated ,{ useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useTheme } from '../../context/themeContext';
 import getApi from "@/utils/api.js"
 import Toast from 'react-native-toast-message';
+
+const {SunmiCustom} = NativeModules;
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
@@ -152,8 +154,11 @@ const createLabel = () => {
   
 
   const handlePrint = async () => {
-
+     await SunmiCustom.print("merhaba");
   }
+
+
+
   return (
         <SafeAreaView style = {{ flex : 1 ,backgroundColor : isDark ?  "#242424" : "whitesmoke", position : "relative",}}>
             <Header name = {t("Print.name")}></Header>
