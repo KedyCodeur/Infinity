@@ -24,7 +24,7 @@ const flags = [
 
 const containerHeight = 2 *  hp("6%"); 
 
-const LanguagePicker = ({lang}) => {
+const LanguagePicker = ({lang,setter}) => {
 
     const {i18n} = useTranslation();  
   
@@ -33,6 +33,9 @@ const LanguagePicker = ({lang}) => {
     
     const [isActive,setIsActive] = useState(false)
     
+    useEffect(()=>{
+      setter(isActive)
+    },[isActive])
 
     useEffect(() => {
       const loadLang = async () => {

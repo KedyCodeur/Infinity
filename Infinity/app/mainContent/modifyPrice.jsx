@@ -34,7 +34,8 @@ const ModifyPrice = () => {
   const [avoidDuplicate,setAvoidDuplicate] = useState("");
   const [productName,setProductName] = useState("TADIM PEPITE NOIRE GRILLE SALLEE 270GR");
   
- const [codeBare , setCodeBare] = useState("");
+  const [codeBare , setCodeBare] = useState("");
+
   const theme = StyleSheet.create({
       h1 : {
         color :   isDark ? "white" : "black",
@@ -65,9 +66,10 @@ const ModifyPrice = () => {
       }
   })
 
-
+  const [count,setCount] = useState(1);
   const apiRef = useRef(null);
 
+  useEffect(()=>{console.log(count)},[count])
 
   useEffect(() => {
     const initApi = async () => {
@@ -101,6 +103,7 @@ const handleModifyPrice_1 = async () => {
 
     } catch (e) {
         Toast.show({ type: "error", text1: t("modifyNotif.invalidBarCode")});
+        console.log(e)
     }
 }
 
@@ -123,13 +126,15 @@ const handleModifyPrice_2 = async () => {
     if (numericPrice > 15000) return Toast.show({ type: "error", text1: t("modifyNotif.quantityPositive")});
     if (numericPrice < 0) return Toast.show({ type: "error", text1: t("modifyNotif.quantityNegative") });
 
-    if(avoidDuplicate === price) {
-      Toast.show({ type: "success", text1: "sa" });
+    if(Number(avoidDuplicate) === Number(price)) {
+      Toast.show({ type: "success", text1: t("modifyNotif.success")});
       setIsModifying(false);
+      return;
     } 
     try {
         
-        await api.post(`/product/priceChange`, { codeBar: codeBare, price: numericPrice });
+        await api.post(`/product/priceChange`, { codeBar: codeBare, price: numericPrice }); 
+
         Toast.show({ type: "success", text1: t("modifyNotif.success") });
         setIsModifying(false);
 
@@ -377,4 +382,3 @@ const styles = StyleSheet.create({
 
     }
 })
-

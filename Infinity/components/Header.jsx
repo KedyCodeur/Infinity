@@ -8,6 +8,8 @@ import {useRouter,usePathname} from "expo-router"
 import LanguagePicker from "./LanguagePicker"
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/context/themeContext';
+import { refToken } from '../utils/refToken';
+import * as SecureStore from 'expo-secure-store';
 
 const outSideOfTheScreen = -wp("100%");
 
@@ -37,6 +39,8 @@ const Header = ({name}) => {
     };
     });
 
+
+
   
     const burgerLine1 = useAnimatedStyle(() => ({
         transform: [
@@ -58,16 +62,29 @@ const Header = ({name}) => {
     }));
 
 
-    const handleLogOut =  async () => (
-        router.replace("/login")
-    )
-    
+    const handleLogOut =  async () => {
+        
+        try{
+
+            refToken.current = null;
+            await SecureStore.deleteItemAsync('refreshToken');
+            router.replace("/login")
+
+        }catch(e){
+            console.log(e)
+        }
+
+    }
+
   useEffect(()=>{
     headerRight.value = withTiming( isActive ? 0 : outSideOfTheScreen , {duration : 700 , easing : Easing.bounce})
   },[isActive])
+
+  const [isFlagClicked,setIsFlagClicked] = useState(false);
+
   return (
 
-
+    
 
      <View style = {[Styles.Header,{backgroundColor : isDark ? "#0676b9" : "#0398D5"}]}>
         <Text style = {Styles.headerText}>{name}</Text>
@@ -80,11 +97,11 @@ const Header = ({name}) => {
         <Animated.View style = {[Styles.HeaderSide,headerSideAnimation]}>
                <HeaderSideLi name={t("HeaderSide.options")} content = {
                     <>
-                        <Options name={t("HeaderSide.remember")} storageKey={"rememberMe"} />
+                       
                         <Options name={t("HeaderSide.theme")} storageKey={"theme"} />
-                        <LanguagePicker lang = {t("HeaderSide.lang")}></LanguagePicker>
+                        <LanguagePicker lang = {t("HeaderSide.lang")} setter = {setIsFlagClicked}></LanguagePicker>
                     </>
-                } isTheFirst={true} />
+                } isTheFirst={true}  lang={{isFlagClicked,setIsFlagClicked}}/>
     
                 <Pressable  onPress={handleLogOut}
                 style={({ pressed }) => [

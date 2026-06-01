@@ -1,8 +1,15 @@
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { storageGetItem, storageSetItem } from "@/utils/storage.js";
+import * as SecureStore from 'expo-secure-store';
 
+import { refToken } from '@/utils/refToken';
 let apiInstance = null;
+
+const getRefToken = async () => {
+  const token = refToken.current || await SecureStore.getItemAsync('refreshToken');
+  return token;
+}
 
 const getApi = async () => {
   if (apiInstance) return apiInstance;
@@ -16,7 +23,7 @@ const getApi = async () => {
   apiInstance = axios.create({ baseURL });
 
   apiInstance.interceptors.request.use(async (config) => {
-    const token = await storageGetItem("accessToken");
+    const token =  await storageGetItem("accessToken");
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   });
@@ -26,11 +33,15 @@ const getApi = async () => {
     async (error) => {
       const originalRequest = error.config;
 
+      if (!error.response) {
+        return Promise.reject(error);
+      }
+
       if (error.response?.status === 403 && !originalRequest._retry) {
         originalRequest._retry = true;
 
         try {
-          const refreshToken = await storageGetItem("refreshToken");
+          const refreshToken = await getRefToken();
           const webAdress = await storageGetItem("webAdress");
           const baseURL = "http://" + webAdress;
 
@@ -39,16 +50,15 @@ const getApi = async () => {
 
           await storageSetItem("accessToken", newToken);
 
-          apiInstance = null;
+     
 
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return apiInstance(originalRequest);
           
-          
-          const freshApi = await getApi();
-          return freshApi(originalRequest);
         } catch (e) {
-          apiInstance = null;
-          await AsyncStorage.multiRemove(["accessToken", "refreshToken"]);
+          await AsyncStorage.removeItem("accessToken");
+          await SecureStore.deleteItemAsync('refreshToken');
+
           return Promise.reject(e);
         }
       }

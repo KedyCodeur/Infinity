@@ -2,7 +2,10 @@ import { Stack } from 'expo-router'
 import { useAnimatedStyle } from 'react-native-reanimated';
 import Toast, { BaseToast } from 'react-native-toast-message';
 
+
 export default function RootLayout() {
+
+
 
 
   const toastConfig = {
@@ -26,7 +29,7 @@ export default function RootLayout() {
     error: (props) => (
       <BaseToast
         {...props}
-        style={{ borderLeftColor: '#69ff74', backgroundColor: '#0a1a0d' }}
+        style={{ borderLeftColor: 'red', backgroundColor: '#0a1a0d' }}
         text1Style={{ color: 'white', fontWeight: '700' }}
         text2Style={{ color: '#aaa' }}
       />
@@ -34,12 +37,14 @@ export default function RootLayout() {
   };
 
   return (
+
     <>
-        <Stack screenOptions={{ headerShown: false }}>
+      <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="login" options={{href : null , headerShown : false}}/>
           <Stack.Screen name="index" options={{href : null , headerShown : false}} />
-        </Stack>
-        <Toast config={toastConfig} />  
+      </Stack>
+      <Toast config={toastConfig} />  
     </>
+
   )
 }

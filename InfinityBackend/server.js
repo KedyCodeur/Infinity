@@ -25,19 +25,30 @@ app.use(express.urlencoded({ extended: true }));
 
 
 
-const apiLimiter = rateLimit({
+const productLimiter = rateLimit({
     windowMs: 30 * 1000,
-    max: 6, 
+    max: 20, 
     message: { err: "Too many requests, try again later" }
 });
 
-app.use(apiLimiter);
+const authLimiter = rateLimit({ 
+    windowMs:  60 * 1000, max: 20 , 
+    message: { err: "Too many requests, try again later" }
+});
 
-app.use("/auth",authRouter)
-app.post("/refresh",jwtControllers.refresh)
+const refreshLimiter = rateLimit({ 
+    windowMs:  60 * 1000, max: 10 , 
+    message: { err: "Too many requests, try again later" }
+});
 
 
-app.use("/product", verifyJWT, productRouter);
+
+
+app.use("/auth",authLimiter,authRouter)
+app.post("/refresh",refreshLimiter,jwtControllers.refresh)
+
+
+app.use("/product", productLimiter,verifyJWT, productRouter);
 
 
 

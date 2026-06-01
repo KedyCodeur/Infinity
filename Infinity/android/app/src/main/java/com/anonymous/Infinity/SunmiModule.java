@@ -175,7 +175,7 @@ public void print(ReadableMap infos, Promise promise) {
                 canvas.drawBitmap(barcode, x, y, null);
                 y += barcode.getHeight() + 21;
             }
-            
+
             paint.setTextSize(19);
             canvas.drawText(barcodeValue, xBarCodeText, y , paint);
 
@@ -194,11 +194,11 @@ public void print(ReadableMap infos, Promise promise) {
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
             paint.setStrokeWidth(1.5f);
             
-            paint.setTextSize(44);
+            paint.setTextSize(42);
             Paint.FontMetrics part1FM = paint.getFontMetrics();
             float part1Width = paint.measureText(priceSeparated[0] + ".");
 
-            paint.setTextSize(40);
+            paint.setTextSize(38);
             Paint.FontMetrics part2FM = paint.getFontMetrics();
             float part2Height = part2FM.descent - part2FM.ascent;
             float part2Width = paint.measureText(priceSeparated[1]);
@@ -217,27 +217,29 @@ public void print(ReadableMap infos, Promise promise) {
             float marginRight = 10;
 
             paint.setColor(Color.WHITE);
-            paint.setTextSize(44);
+            paint.setTextSize(42);
             canvas.drawText(priceSeparated[0] + ".", 384 - allWidthPrice - marginRight, saveY - 38 + centerRect + - part3FM.ascent + partSpace   - part1FM.ascent , paint); 
 
 
-            paint.setTextSize(40);
+            paint.setTextSize(38);
             canvas.drawText(priceSeparated[1] , 384 - part2Width - marginRight ,saveY - 38 + centerRect + partSpace - part1FM.ascent - part3FM.ascent , paint); 
 
             paint.setTextSize(36);
             canvas.drawText(currency, 384 - part2Width - marginRight ,saveY - 38  + centerRect - part3FM.ascent , paint); 
 
            //--------------------------------------------------------------------------------------------------
+            if(!uniteType.isEmpty()){
+                paint.setColor(Color.BLACK);
+                paint.setTextSize(19);
+                canvas.drawText(contenu + " " + uniteType, 215 , yBottomValues , paint); 
+                float widthLeftPart = 384 - paint.measureText(pricePerKgL + " " + currency + "/" + uniteType); // 10 == space
 
-            paint.setColor(Color.BLACK);
-            paint.setTextSize(19);
-            canvas.drawText(contenu + " " + uniteType, 215 , yBottomValues , paint); 
-            float widthLeftPart = 384 - paint.measureText(pricePerKgL + " " + currency + "/" + uniteType); // 10 == space
+                
+                canvas.drawText(pricePerKgL + " " + currency + "/" + uniteType, widthLeftPart , yBottomValues, paint);
 
-            
-            canvas.drawText(pricePerKgL + " " + currency + "/" + uniteType, widthLeftPart , yBottomValues, paint);
+                drawDashedLine(canvas, 5, height, 379, height, linePaint);
+            }
 
-            drawDashedLine(canvas, 5, height, 379, height, linePaint);
             try {   
                     MainApplication.getInstance().sunmiPrinter.printerInit(null);
                     MainApplication.getInstance().sunmiPrinter.printBitmap(label, new InnerResultCallback() {

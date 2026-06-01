@@ -21,13 +21,14 @@ const createLabel = () => {
 
   const { isDark} = useTheme() ?? false
 
+  
 
   const [isFocusedMofiy,setIsFocusedModify] = useState(false)
 
   const [isModifying,setIsModifying] = useState(false)
 
   const apiRef = useRef(null);
- const [codeBare , setCodeBare] = useState("");
+  const [codeBare , setCodeBare] = useState("");
   useEffect(() => {
     const initApi = async () => {
       apiRef.current = await getApi();
@@ -137,10 +138,9 @@ const createLabel = () => {
 
     try {
         const demande = await api.post(`/product/createLabel`, { codeBar: codeBare });
-        if (demande.status === 200 || demande.data) {
+        if (demande.status === 200 && demande.data){
             const product = demande.data;
-            console.log(product)
-            
+
             const contenu = parseFloat(parseFloat(product.contenu).toFixed(3)).toString();
             let price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
             const pricePerKgL = parseFloat((price / parseFloat(product.contenu)).toFixed(2)).toString();
@@ -186,6 +186,7 @@ const createLabel = () => {
                   onChangeText={(text) => setCodeBare(text)}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
+                  value={codeBare}
               ></AnimatedTextInput>
 
               <Animated.Text style={[styles.label, labelAnimation,theme.label]}>{t("Print.label")}</Animated.Text>

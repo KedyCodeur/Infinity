@@ -12,17 +12,25 @@ import {storageGetItem,storageSetItem} from "@/utils/storage.js"
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { jwtDecode } from "jwt-decode";
+import { refToken } from '../utils/refToken';
+import * as SecureStore from 'expo-secure-store';
 
 
 const login = () => {
     
     const router = useRouter();
 
+
+
+    
+
+
     const { t } = useTranslation(); 
     const colorPressed = "#0676b9"
     const [isActive,setIsActive] = useState(false);
-    const [isChecked , setIsChecked] = useState(false);
-
+    const [isShowing , setIsShowing] = useState(false);
+    const [isRememberMe , setIsRememberMe] = useState(false);
+    
 
     const [loginErreur,setLoginErreur] = useState("")
     const  [webAdressValue,setWebAdressValue]= useState("");
@@ -30,13 +38,36 @@ const login = () => {
     const passwordRef = useRef("");
 
     useEffect(()=>{
+
+        const getRefToken = async () => {
+        const token = await SecureStore.getItemAsync('refreshToken');
+            if(token){
+                try{
+                    
+                    const decoded = await jwtDecode(token);
+
+                    let msg = t("LoginNotif.OK_200") + " " + (decoded?.username || "");
+                    Toast.show({type : "success" , text1 : msg})
+                    setLoginErreur("");
+                    router.replace("/mainContent/createLabel")
+                }catch(e){
+                    await SecureStore.deleteItemAsync('refreshToken');
+                }
+            }
+        }
+
+         getRefToken();
+
+
+
         const getWebAdress = async () => {
           const webAdress =   await storageGetItem("webAdress")
           setWebAdressValue(webAdress)
         }
-
         getWebAdress();
+
     },[])
+
     const handleLogin = async () => {
         Toast.show({type : "waiting" , text1 : "Waiting"})
         const username = usernameRef.current.trim();
@@ -55,9 +86,13 @@ const login = () => {
 
             const decoded = jwtDecode(data.accessToken);
 
-            await storageSetItem("refreshToken",data.refreshToken)
-            await storageSetItem("accessToken",data.accessToken)
-            
+            if(isRememberMe){
+                await SecureStore.setItemAsync('refreshToken', data.refreshToken);
+                
+            }else{
+                refToken.current = data.refreshToken;
+            }
+            await storageSetItem("accessToken",data.accessToken);
             let msg = t("LoginNotif.OK_200") + " " + (decoded?.username || "");
             Toast.show({type : "success" , text1 : msg})
             setLoginErreur("");
@@ -121,14 +156,24 @@ const login = () => {
                             <TextInput style = {Styles.Input} onChangeText={(text) => usernameRef.current = text}  />
                         </View>
 
-                        <View Styles = {Styles.Help}><Text  style = {Styles.Label}  >{t('Login.password')}</Text>
-                            <TextInput style = {Styles.Input} secureTextEntry={!isChecked ?  true : false} autoCapitalize="none"  autoCorrect={false} onChangeText={(text) => passwordRef.current = text} />
+                        <View >
+                            <Text  style = {Styles.Label}  >{t('Login.password')}</Text>
+
+                            <View style = {Styles.passwordView} >
+                                <TextInput style = {Styles.InputOnly} secureTextEntry={!isShowing ?  true : false} autoCapitalize="none"  autoCorrect={false} onChangeText={(text) => passwordRef.current = text} />
+
+                                <Pressable onPress={()=>{setIsShowing(!isShowing)}}>
+                                        <Image source={ isShowing ? require("@/assets/view.png") : require("@/assets/hide.png")} style = {Styles.eyeIcon}></Image>
+                                </Pressable>
+                            </View>
+                            
+                        
                         </View>
 
-                        <Pressable onPress={()=>{setIsChecked(!isChecked)}} style = {{alignItems : "flex-start"}}>
+                        <Pressable onPress={()=>{setIsRememberMe(!isRememberMe)}} style = {{alignItems : "flex-start"}}>
                             <View style = {checkboxStyle.Container}>
-                                <View style = {!isChecked ? checkboxStyle.checked : checkboxStyle.notChecked} ></View>
-                                <Text style = {checkboxStyle.CheckBoxText}>{!isChecked  ? t("Login.show") : t("Login.hide") }</Text>
+                                <View style = {!isRememberMe ? checkboxStyle.checked : checkboxStyle.notChecked} ></View>
+                                <Text style = {checkboxStyle.CheckBoxText}>{t("HeaderSide.remember")}</Text>
                             </View>
                         </Pressable>
                         
@@ -200,6 +245,28 @@ const Styles = StyleSheet.create({
       color : "white",
       fontWeight : 900,
     },
+    passwordView: {
+        flexDirection: "row", 
+        alignItems: "center", 
+        width: wp("75%"),
+        height: hp("7%"),
+        backgroundColor: "whitesmoke",
+        borderRadius: 5,
+        borderWidth: 0.2,
+        borderColor: "gray",
+        paddingHorizontal: 10, 
+        alignSelf: "center"
+    },
+    InputOnly: {
+        flex: 1,
+        height: "100%"
+    },
+    eyeIcon: {
+        width: 25,
+        height: 25,
+        resizeMode: "contain"
+
+    }
   })
   
 
