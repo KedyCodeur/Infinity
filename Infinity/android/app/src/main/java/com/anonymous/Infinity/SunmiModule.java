@@ -30,6 +30,8 @@ import java.util.Map;
 
 import android.graphics.DashPathEffect;
 
+import com.facebook.react.bridge.ReadableMap;
+
 
 public class SunmiModule extends ReactContextBaseJavaModule {
 
@@ -42,29 +44,30 @@ public class SunmiModule extends ReactContextBaseJavaModule {
         return "SunmiCustom";
     }
 
-    public static Bitmap createBarCode(String barcode) {
-        try {
-            Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
-            hints.put(EncodeHintType.MARGIN, 0); 
+public static Bitmap createBarCode(String barcode) {
+    try {
+        Map<EncodeHintType, Object> hints = new EnumMap<>(EncodeHintType.class);
+        hints.put(EncodeHintType.MARGIN, 0);
 
-            BitMatrix result = new MultiFormatWriter()
-                    
-                    .encode(barcode, BarcodeFormat.CODE_128, 245, 60, hints);
+        BitMatrix result = new MultiFormatWriter()
+                .encode(barcode, BarcodeFormat.CODE_128, 1, 1, hints);
 
-            Bitmap BitmapBarcode = new BarcodeEncoder().createBitmap(result);
-            return BitmapBarcode;
+        Bitmap raw = new BarcodeEncoder().createBitmap(result);
+        Bitmap scaled = Bitmap.createScaledBitmap(raw, 196, 60, false);
+        raw.recycle();
+        return scaled;
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
     }
+}
 
 
 
     public StaticLayout createStaticLayout(String text) {
         TextPaint textPaint = new TextPaint();
-        textPaint.setTextSize(26); 
+        textPaint.setTextSize(29); 
         textPaint.setColor(Color.BLACK);
         textPaint.setAntiAlias(true);
 
@@ -90,14 +93,21 @@ public class SunmiModule extends ReactContextBaseJavaModule {
     }
 
 @ReactMethod
-public void print(String text, Promise promise) {
+public void print(ReadableMap infos, Promise promise) {
     try {
         if (MainApplication.getInstance().sunmiPrinter != null) {
             
-            String barcodeValue = "123456789";
-            String productName = "Bu cümle tam olarak";
-            String refCode = "SHOULDERS TRAITEMENT";
-            
+            String barcodeValue = infos.getString("barcodeValue");
+            String productName = infos.getString("productName");
+            String refCode = infos.getString("refCode");
+            String uniteType = infos.getString("uniteType");
+            String contenu = infos.getString("contenu");
+            String pricePerKgL = infos.getString("pricePerKgL");
+            String price = infos.getString("price");
+            String currency = infos.getString("currency");
+
+
+            String[] priceSeparated = price.split("\\.");
 
             int space = 0;
             StaticLayout layout = createStaticLayout(productName);
@@ -105,13 +115,13 @@ public void print(String text, Promise promise) {
             int lines = layout.getLineCount();
 
             switch(lines){
-                case 1 -> space = 120;
-                case 2 -> space = 95;
-                case 3 -> space = 67;
+                case 1 -> space = 110;
+                case 2 -> space = 85;
+                case 3 -> space = 48;
             }
 
             int width = 384;
-            int height = 285;
+            int height = 275;
           
             Bitmap label = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(label);
@@ -128,9 +138,9 @@ public void print(String text, Promise promise) {
             linePaint.setStrokeWidth(2);
             linePaint.setStyle(Paint.Style.STROKE);
            
-            drawDashedLine(canvas, 0, 0, 384, height, linePaint);
-            int x = -17;
-            int y =  30;
+            
+            int x = 0;
+            int y =  20;
 
             
 
@@ -140,11 +150,11 @@ public void print(String text, Promise promise) {
             canvas.restore();
             y += layout.getHeight() + space;
 
-            int barcodeWidth = 245; 
+            int barcodeWidth = 196; 
             
 
 
-            paint.setTextSize(16);
+            paint.setTextSize(17);
             float refCodeWidth = paint.measureText(refCode);
             float barCodeTextWidth= paint.measureText(barcodeValue);
                
@@ -154,40 +164,97 @@ public void print(String text, Promise promise) {
 
             int xBarCodeText = (int)   ((barcodeWidth - barCodeTextWidth) / 2) ;
 
+            
+
+            canvas.drawText(refCode, xRefCode , y - 10 , paint);
+            y += 1;
+
             int saveY = y;
-
-            canvas.drawText(refCode, xRefCode - 19 , y - 10 , paint);
-            y += 2;
-
             Bitmap barcode = createBarCode(barcodeValue);
             if (barcode != null) {
                 canvas.drawBitmap(barcode, x, y, null);
-                y += barcode.getHeight() + 18;
+                y += barcode.getHeight() + 21;
             }
             
-            canvas.drawText(barcodeValue, xBarCodeText - 20 , y , paint);
+            paint.setTextSize(19);
+            canvas.drawText(barcodeValue, xBarCodeText, y , paint);
+
+            int yBottomValues = y;
+            
 
             Paint rectPaint = new Paint();
             rectPaint.setColor(Color.BLACK); 
             rectPaint.setStyle(Paint.Style.FILL); 
-            rectPaint.setStrokeWidth(2); 
-            
+            rectPaint.setStrokeWidth(2);    
 
-            canvas.drawRect(barcodeWidth - 26 , saveY - 50  , 384, saveY + 60, rectPaint);    
+            canvas.drawRect(215, saveY - 38  , 384, saveY + 60, rectPaint);//98 height 
+
+
+            paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+            paint.setStrokeWidth(1.5f);
+            
+            paint.setTextSize(44);
+            Paint.FontMetrics part1FM = paint.getFontMetrics();
+            float part1Width = paint.measureText(priceSeparated[0] + ".");
+
+            paint.setTextSize(40);
+            Paint.FontMetrics part2FM = paint.getFontMetrics();
+            float part2Height = part2FM.descent - part2FM.ascent;
+            float part2Width = paint.measureText(priceSeparated[1]);
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setStrokeWidth(0);
+
+            paint.setTextSize(36);
+            Paint.FontMetrics part3FM = paint.getFontMetrics();
+            float part3Height= part3FM.descent - part3FM.ascent;
+            
+            float partSpace = 1;
+
+            float centerRect = (98 - (part2Height + - part3FM.ascent + partSpace))/ 2;
+            float allWidthPrice = part1Width + part2Width;
+            float marginRight = 10;
+
+            paint.setColor(Color.WHITE);
+            paint.setTextSize(44);
+            canvas.drawText(priceSeparated[0] + ".", 384 - allWidthPrice - marginRight, saveY - 38 + centerRect + - part3FM.ascent + partSpace   - part1FM.ascent , paint); 
+
+
+            paint.setTextSize(40);
+            canvas.drawText(priceSeparated[1] , 384 - part2Width - marginRight ,saveY - 38 + centerRect + partSpace - part1FM.ascent - part3FM.ascent , paint); 
+
+            paint.setTextSize(36);
+            canvas.drawText(currency, 384 - part2Width - marginRight ,saveY - 38  + centerRect - part3FM.ascent , paint); 
+
+           //--------------------------------------------------------------------------------------------------
+
+            paint.setColor(Color.BLACK);
+            paint.setTextSize(19);
+            canvas.drawText(contenu + " " + uniteType, 215 , yBottomValues , paint); 
+            float widthLeftPart = 384 - paint.measureText(pricePerKgL + " " + currency + "/" + uniteType); // 10 == space
+
+            
+            canvas.drawText(pricePerKgL + " " + currency + "/" + uniteType, widthLeftPart , yBottomValues, paint);
 
             drawDashedLine(canvas, 5, height, 379, height, linePaint);
-            try {
-            
+            try {   
+                    MainApplication.getInstance().sunmiPrinter.printerInit(null);
                     MainApplication.getInstance().sunmiPrinter.printBitmap(label, new InnerResultCallback() {
                         @Override public void onPrintResult(int code, String msg) {
+                            label.recycle();
+                            if (barcode != null) barcode.recycle();
                             promise.resolve("Baskı Tamamlandı!");
                         }
                         @Override public void onRaiseException(int code, String msg) {
+                            label.recycle();
+                            if (barcode != null) barcode.recycle();
                             promise.reject("PRINT_ERR", msg);
                         }
                         @Override public void onRunResult(boolean b) {}
                         @Override public void onReturnString(String s) {}
                     });
+                    MainApplication.getInstance().sunmiPrinter.lineWrap(3, null);
                 } catch (android.os.RemoteException e) {
                 
                     promise.reject("REMOTE_ERR", e.getMessage());

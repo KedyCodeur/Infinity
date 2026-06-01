@@ -28,7 +28,6 @@ const createLabel = () => {
 
   const apiRef = useRef(null);
  const [codeBare , setCodeBare] = useState("");
- const [productData , setProductData] = useState({});
   useEffect(() => {
     const initApi = async () => {
       apiRef.current = await getApi();
@@ -138,10 +137,29 @@ const createLabel = () => {
 
     try {
         const demande = await api.post(`/product/createLabel`, { codeBar: codeBare });
-        console.log(demande.data)
         if (demande.status === 200 || demande.data) {
-            setProductData(demande.data)
-            setIsModifying(true);
+            const product = demande.data;
+            console.log(product)
+            
+            const contenu = parseFloat(parseFloat(product.contenu).toFixed(3)).toString();
+            let price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
+            const pricePerKgL = parseFloat((price / parseFloat(product.contenu)).toFixed(2)).toString();
+            price = price.toString();
+          
+            
+            const infos = {
+                "barcodeValue" : codeBare,
+                "productName" : product.lib_prd,
+                "refCode" : product.ref_prd,
+                "uniteType" : product.unite_contenu,
+                "contenu" :contenu,
+                "pricePerKgL" : pricePerKgL,
+                "price" : price,
+                "currency" : "€"
+            }
+
+            await SunmiCustom.print(infos);
+            
         } else {
             Toast.show({ type: "error", text1: t("modifyNotif.invalidBarCode") });
         }
@@ -153,9 +171,6 @@ const createLabel = () => {
   }
   
 
-  const handlePrint = async () => {
-     await SunmiCustom.print("merhaba");
-  }
 
 
 
@@ -178,6 +193,8 @@ const createLabel = () => {
 
             <Pressable  onPress={()=>{
               handleGetLabelData();
+               
+                  
             }} style = {({pressed}) => [
               styles.button,{opacity : pressed ? 0.8 : 1},theme.button
             ]}>
@@ -186,63 +203,6 @@ const createLabel = () => {
 
             </ScrollView>
             
-            <Animated.View style = {[modifyPanel,styles.overlay]} 
-              pointerEvents={isModifying ? "auto" : "none"}>
-                            <View style = {[styles.modifyContainer,theme.modifyContainer]} 
-
-              >
-                <Text  style = {[styles.productName, theme.productName ]}>{"Number of labels"}</Text>
-              <View style = {styles.containerInput}>
-            
-
-              <FlatList
-                  data={Array.from({ length: 20 }, (_, i) => i + 1)}
-                  keyExtractor={(item) => String(item)}
-                  style={{ width: wp("80%"), maxHeight: hp("20%") }}
-                  renderItem={({ item }) => (
-                      <Pressable
-                          onPress={() => setQuantity(item)}
-                          style={{
-                              padding: 10,
-                              backgroundColor: quantity === item ? "#0398D5" : "transparent",
-                              justifyContent : "center",
-                              borderRadius: 5,
-                              alignItems: "center"
-                          }}
-                      >
-                          <Text style={{ color: isDark ? "white" : "#333" , fontSize : quantity === item ?  21: 14  ,}}>{item}</Text>
-                      </Pressable>
-                  )}
-              />
-              </View>
-
-              <View style = {styles.buttonContainer}>
-                <Pressable  onPress={()=>{
-                  
-                  handlePrint();
-              
-                  
-                }} style = {({pressed}) => [
-                styles.buttonModify,{backgroundColor : pressed ? "#0676b9" : "#0398D5"}
-              ]}>
-                <Text style = {[styles.buttonText,theme.buttonText]}
-              >{t("Print.button")}</Text>
-              </Pressable>
-
-                <Pressable  onPress={()=>{
-                  setIsModifying(false)
-                  setQuantity(1)
-                   }} style = {({pressed}) => [
-                  styles.buttonModify,{backgroundColor : pressed ? "maroon" : "#D92243"}
-                ]}>
-                  <Text style = {[styles.buttonText,theme.buttonText]}
-                >{t("ModifyPanel.cancel")}</Text>
-                </Pressable>
-                
-              </View>
-
-              </View>
-            </Animated.View>       
 
         </SafeAreaView>
   )
