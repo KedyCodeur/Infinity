@@ -53,7 +53,25 @@ const de = {
         success: "Preis erfolgreich geändert",
         invalidPrice: "Ungültiger Preis"
     },
-    
+    handleModifyPriceError : {
+        400: "Der Barcode darf nicht leer sein",
+        404: "Barcode nicht gefunden",
+        500: "Serverfehler",
+        429: "Zu viele Anfragen, bitte warten",
+        unknown: "Unbekannter Fehler",
+    },
+    printerErrors : {
+        1: "Drucker besetzt",
+        4: "Kein Papier",
+        6: "Abdeckung offen",
+        7: "Papierstau",
+        9: "Drucker nicht gefunden",
+        505: "Drucker nicht verbunden",
+        507: "Firmware-Fehler",
+        REMOTE_ERR: "Dienstverbindungsfehler",
+        dataError: "Ungültige Daten. Bitte Informationen prüfen.",
+        unknown: "Unbekannter Fehler"
+    }
 
 
 }

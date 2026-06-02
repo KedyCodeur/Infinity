@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
         justifyContent : "space-evenly" ,
         alignItems : "center",
         overflow : "hidden",
-        marginBottom : "3%"
+        marginBottom : "3%",
 
     }, 
     Text : {
@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
         width : "60%",
         flexWrap : "wrap",
         marginLeft : "5%"
+        
     } , 
     bg : {
         width : wp("18%"),

@@ -32,17 +32,50 @@ import android.graphics.DashPathEffect;
 
 import com.facebook.react.bridge.ReadableMap;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 
 public class SunmiModule extends ReactContextBaseJavaModule {
 
+private final BroadcastReceiver scannerReceiver = new BroadcastReceiver() {
+    
+    @Override
+    public void onReceive(Context context, Intent intent) {
+            String barcode = intent.getStringExtra("data");
+            if (barcode != null) {
+                sendEvent("onBarcodeScanned", barcode);
+            }
+        }
+    };
+
+  
     SunmiModule(ReactApplicationContext context) {
         super(context);
+     
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.sunmi.scanner.ACTION_DATA_CODE_RECEIVED");
+        context.registerReceiver(scannerReceiver, filter);
     }
 
     @Override
     public String getName() {
         return "SunmiCustom";
     }
+
+
+private void sendEvent(String eventName, String data) {
+    getReactApplicationContext()
+        .getJSModule(com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+        .emit(eventName, data);
+}
+
+public void onScanResult(int code, String barcode) { 
+    if (barcode != null) {
+        sendEvent("onBarcodeScanned", barcode);
+    }
+}
 
 public static Bitmap createBarCode(String barcode) {
     try {
@@ -106,6 +139,12 @@ public void print(ReadableMap infos, Promise promise) {
             String price = infos.getString("price");
             String currency = infos.getString("currency");
 
+            int code = MainApplication.getInstance().sunmiPrinter.updatePrinterState();
+            
+            if (code != 0 && code != 1) {
+                promise.reject(String.valueOf(code), "hardware error");
+                return;
+            }
 
             String[] priceSeparated = price.split("\\.");
 
@@ -194,11 +233,11 @@ public void print(ReadableMap infos, Promise promise) {
             paint.setStyle(Paint.Style.FILL_AND_STROKE);
             paint.setStrokeWidth(1.5f);
             
-            paint.setTextSize(42);
+            paint.setTextSize(49);
             Paint.FontMetrics part1FM = paint.getFontMetrics();
             float part1Width = paint.measureText(priceSeparated[0] + ".");
 
-            paint.setTextSize(38);
+            paint.setTextSize(44);
             Paint.FontMetrics part2FM = paint.getFontMetrics();
             float part2Height = part2FM.descent - part2FM.ascent;
             float part2Width = paint.measureText(priceSeparated[1]);
@@ -206,7 +245,7 @@ public void print(ReadableMap infos, Promise promise) {
             paint.setStyle(Paint.Style.FILL);
             paint.setStrokeWidth(0);
 
-            paint.setTextSize(36);
+            paint.setTextSize(38);
             Paint.FontMetrics part3FM = paint.getFontMetrics();
             float part3Height= part3FM.descent - part3FM.ascent;
             
@@ -217,14 +256,14 @@ public void print(ReadableMap infos, Promise promise) {
             float marginRight = 10;
 
             paint.setColor(Color.WHITE);
-            paint.setTextSize(42);
+            paint.setTextSize(49);
             canvas.drawText(priceSeparated[0] + ".", 384 - allWidthPrice - marginRight, saveY - 38 + centerRect + - part3FM.ascent + partSpace   - part1FM.ascent , paint); 
 
 
-            paint.setTextSize(38);
+            paint.setTextSize(44);
             canvas.drawText(priceSeparated[1] , 384 - part2Width - marginRight ,saveY - 38 + centerRect + partSpace - part1FM.ascent - part3FM.ascent , paint); 
 
-            paint.setTextSize(36);
+            paint.setTextSize(38);
             canvas.drawText(currency, 384 - part2Width - marginRight ,saveY - 38  + centerRect - part3FM.ascent , paint); 
 
            //--------------------------------------------------------------------------------------------------
@@ -246,12 +285,13 @@ public void print(ReadableMap infos, Promise promise) {
                         @Override public void onPrintResult(int code, String msg) {
                             label.recycle();
                             if (barcode != null) barcode.recycle();
-                            promise.resolve("Baskı Tamamlandı!");
+                            promise.resolve("Ok");
+                            
                         }
                         @Override public void onRaiseException(int code, String msg) {
                             label.recycle();
                             if (barcode != null) barcode.recycle();
-                            promise.reject("PRINT_ERR", msg);
+                            promise.reject( String.valueOf(code), msg );
                         }
                         @Override public void onRunResult(boolean b) {}
                         @Override public void onReturnString(String s) {}
@@ -263,13 +303,13 @@ public void print(ReadableMap infos, Promise promise) {
                 }
 
                     } else {
-                        promise.reject("HATA", "Yazıcı bağlı değil!");
+                        promise.reject("9");
                     }
                 } catch (Exception e) {
-                    promise.reject("HATA", e.getMessage());
+                    promise.reject("9", e.getMessage());
                 }
 }
-
-
+ 
+ 
 
 }

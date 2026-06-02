@@ -51,6 +51,25 @@ const en = {
         quantityNegative : "Price cannot be negative",
         success : "Price modified successfully",
         invalidPrice : "Invalid price"
+    },
+    handleModifyPriceError : {
+        400: "codeBar can not be empty",
+        404: "Barcode not found",
+        500: "Server Error",
+        429: "Too many requests please wait",
+        unknown : "Unknown error",
+    },
+    printerErrors : {
+        1: "Printer is busy",
+        4: "Printer out of paper",
+        6: "Printer cover is open",
+        7: "Paper jam",
+        9: "No printer detected",
+        505: "Printer not connected",
+        507: "Printer firmware error",
+        REMOTE_ERR: "Printer service connection error",
+        dataError: "Invalid data received. Please verify the information.",
+        unknown : "Unknown error",
     }
 
 }

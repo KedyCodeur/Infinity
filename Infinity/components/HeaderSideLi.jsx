@@ -41,7 +41,7 @@ const animatedArrow = useAnimatedStyle(()=>{
       <Text style = {styles.name}>{name}</Text>
     </Pressable>
     
-    <Animated.View style={{ position: "absolute", opacity: 0, zIndex: -1 }} onLayout={(e) => setContentHeight(e.nativeEvent.layout.height)} >
+    <Animated.View style={{ position: "absolute", opacity: 0, zIndex: -1 }} onLayout={(e) => setContentHeight(e.nativeEvent.layout.height) } pointerEvents={"none"} >
        { content}
     </Animated.View>
 
@@ -60,6 +60,7 @@ const styles = StyleSheet.create({
         fontSize : 25,
         fontWeight : "500",
         color : "white",
+        
     },
     pressable : {
         alignSelf : "flex-start",
@@ -77,5 +78,6 @@ const styles = StyleSheet.create({
     bigContainer : {
          marginBottom : hp("1%"),
          overflow :"hidden",
+         
     }
 })

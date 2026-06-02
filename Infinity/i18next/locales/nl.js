@@ -52,7 +52,25 @@ const nl = {
         success: "Prijs succesvol gewijzigd",
         invalidPrice: "Ongeldige prijs"
     },
-
+    handleModifyPriceError : {
+    400: "Barcode mag niet leeg zijn",
+    404: "Barcode niet gevonden",
+    500: "Serverfout",
+    429: "Te veel verzoeken, wacht alstublieft",
+    unknown: "Onbekende fout",
+    },
+    printerErrors : {
+        1: "Printer bezet",
+        4: "Papier op",
+        6: "Klep open",
+        7: "Papierstoring",
+        9: "Printer niet gedetecteerd",
+        505: "Printer niet verbonden",
+        507: "Printer firmwarefout",
+        REMOTE_ERR: "Service verbindingsfout",
+        dataError: "Ongeldige data. Controleer de gegevens.",
+        unknown: "Onbekende fout"
+    }
     
 }
 export default nl;

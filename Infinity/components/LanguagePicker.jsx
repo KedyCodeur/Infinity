@@ -94,7 +94,6 @@ const Styles = StyleSheet.create(
         height : hp("4%") ,
         width : wp("12%") ,
         borderRadius : 3,
-      
         marginTop : "2%",
         marginBottom : "3%"
         },
@@ -107,7 +106,7 @@ const Styles = StyleSheet.create(
             alignItems : "center",
             justifyContent : "flex-start",
             width : "50%",
-            paddingLeft : "5%"
+            paddingLeft : "5%",
 
         } , 
         liText : {
@@ -117,7 +116,8 @@ const Styles = StyleSheet.create(
         pressable : {
           flexDirection : "row",
           alignItems : "center",
-          gap : "10%"
+          gap : "10%",
+          alignSelf: 'flex-start'
         },
         textLang : {
             color : "white",

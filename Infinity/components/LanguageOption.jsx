@@ -125,6 +125,7 @@ const Styles = StyleSheet.create(
            zIndex : 999,
            justifyContent  : "center",
            alignItems : "flex-end",
+           
         },
         Li : {
           width :"100%",
@@ -136,6 +137,7 @@ const Styles = StyleSheet.create(
           justifyContent : "space-start",
           paddingLeft : "10%",
           gap : "10%",
+          
          
         }, 
         LiImage : {

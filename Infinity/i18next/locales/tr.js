@@ -52,6 +52,25 @@ const tr = {
         success: "Fiyat başarıyla güncellendi",
         invalidPrice: "Geçersiz fiyat"
     },
+    handleModifyPriceError : {
+        400: "Barkod boş olamaz",
+        404: "Barkod bulunamadı",
+        500: "Sunucu hatası",
+        429: "Çok fazla istek gönderildi, lütfen bekleyin",
+        unknown: "Bilinmeyen hata",
+    },
+    printerErrors : {
+        1: "Yazıcı meşgul",
+        4: "Kağıt bitti",
+        6: "Yazıcı kapağı açık",
+        7: "Kağıt sıkıştı",
+        9: "Yazıcı algılanamadı",
+        505: "Yazıcı bağlı değil",
+        507: "Yazıcı yazılım hatası",
+        REMOTE_ERR: "Servis bağlantı hatası",
+        dataError: "Geçersiz veri. Lütfen bilgileri kontrol edin.",
+        unknown: "Bilinmeyen hata"
+    }
 
 }
 export default tr;

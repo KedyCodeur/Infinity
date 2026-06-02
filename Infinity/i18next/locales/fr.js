@@ -53,6 +53,25 @@ const fr = {
         success: "Prix modifié avec succès",
         invalidPrice: "Prix invalide"
     },
+    handleModifyPriceError : {
+        400: "Le code-barres ne peut pas être vide",
+        404: "Code-barres introuvable",
+        500: "Erreur du serveur",
+        429: "Trop de requêtes, veuillez patienter",
+        unknown: "Erreur inconnue",
+    },
+    printerErrors : {
+        1: "Imprimante occupée",
+        4: "Plus de papier",
+        6: "Capot ouvert",
+        7: "Bourrage papier",
+        9: "Imprimante non trouvée",
+        505: "Imprimante non connectée",
+        507: "Erreur firmware",
+        REMOTE_ERR: "Erreur de connexion",
+        dataError: "Données invalides. Veuillez vérifier les informations.",
+        unknown: "Erreur inconnue"
+    }
 
 }
 export default fr;

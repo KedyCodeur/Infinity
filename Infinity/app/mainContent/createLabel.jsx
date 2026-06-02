@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable , FlatList , NativeModules} from 'react-native'
+import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable , FlatList , NativeModules , Image} from 'react-native'
 import React, { useState , useRef , useEffect} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from "@/components/Header"
@@ -8,7 +8,7 @@ import Animated ,{ useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useTheme } from '../../context/themeContext';
 import getApi from "@/utils/api.js"
 import Toast from 'react-native-toast-message';
-
+import { DeviceEventEmitter } from 'react-native';
 const {SunmiCustom} = NativeModules;
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
@@ -126,30 +126,83 @@ const createLabel = () => {
   })
   const [quantity, setQuantity] = useState(1);
 
-  const handleGetLabelData = async () => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const inputRef = useRef(null);
+  
+  const handleGetLabelData = async (codeBare) => {
     const api = apiRef.current;
+    if (isProcessing) return; 
+    setIsProcessing(true);
 
-
-    if (!api) return;
+    if (!api){
+      setIsProcessing(false);
+      return;
+    };
 
     if (!codeBare.trim()) {
+        setIsProcessing(false);
         return Toast.show({ type: "error", text1: t("modifyNotif.emptyBarCode")});
     }
 
     try {
         const demande = await api.post(`/product/createLabel`, { codeBar: codeBare });
+
+
         if (demande.status === 200 && demande.data){
             const product = demande.data;
+            
+            if (product.uprice_wt == null || product.uprice_wt === "" || isNaN(Number(product.uprice_wt))) {
+              return Toast.show({
+                type: "error",
+                text1: t("printerErrors.dataError")
+              });
+            }
 
-            const contenu = parseFloat(parseFloat(product.contenu).toFixed(3)).toString();
-            let price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
-            const pricePerKgL = parseFloat((price / parseFloat(product.contenu)).toFixed(2)).toString();
-            price = price.toString();
+            if (product.lib_prd == null || product.lib_prd.trim() === ""){
+                return Toast.show({
+                  type: "error",
+                  text1: t("printerErrors.dataError")
+                });             
+            }
+
+            if (product.ref_prd == null || product.ref_prd.trim() === ""){
+                return Toast.show({
+                  type: "error",
+                  text1: t("printerErrors.dataError")
+                });             
+            }
+
+            let nameProduct = product.lib_prd.replace(/\\n/g, " ").replace(/\n/g, " ");
+    
+
+            let price ;
+            let contenu;
+            let pricePerKgL;
+
+            if(product.unite_contenu){
+
+                if (product.contenu == null || product.contenu === "" || isNaN(Number(product.contenu))) {
+                  return Toast.show({
+                    type: "error",
+                    text1: t("printerErrors.dataError")
+                  });
+                }
+
+                contenu = parseFloat(parseFloat(product.contenu).toFixed(3)).toString();
+                price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
+                pricePerKgL = parseFloat((price / parseFloat(product.contenu)).toFixed(2)).toString();
+                price = price.toString();
+
+            }else{
+              price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
+              price = price.toString();
+            }
+
           
             
             const infos = {
                 "barcodeValue" : codeBare,
-                "productName" : product.lib_prd,
+                "productName" : nameProduct,
                 "refCode" : product.ref_prd,
                 "uniteType" : product.unite_contenu,
                 "contenu" :contenu,
@@ -157,43 +210,93 @@ const createLabel = () => {
                 "price" : price,
                 "currency" : "€"
             }
+            
+           if ( !infos.productName?.trim() || !infos.refCode?.trim() || (!infos.price?.toString().trim() && infos.price !== "0")) return Toast.show({ type: "error", text1: t("printerErrors.dataError") });
+              
+            
+            if(infos.uniteType && (!infos.contenu || !infos.pricePerKgL) ) return  Toast.show({ type: "error", text1: t("printerErrors.dataError") }) ;
 
             await SunmiCustom.print(infos);
             
         } else {
-            Toast.show({ type: "error", text1: t("modifyNotif.invalidBarCode") });
+            Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
         }
 
     } catch (e) {
-        Toast.show({ type: "error", text1: t("modifyNotif.invalidBarCode")});
+        if(e.code){
+          Toast.show({ type: "error",  text1: t(`printerErrors.${e.code}`, { defaultValue: t("printerErrors.unknown") }) })
+         
+          console.log(e.code)
+        }else{
+          Toast.show({ type: "error",   text1: t(`printerErrors.unknown`)});
+        }
+        
         console.log(e)
+    }finally {
+
+      Keyboard.dismiss();
+      requestAnimationFrame(() => {
+              if (inputRef.current) {
+                  inputRef.current.blur();
+              }
+          });
+      
+          
+      setCodeBare("");
+
+      setIsProcessing(false);
     }
   }
   
 
+useEffect(() => {
+  const listener = DeviceEventEmitter.addListener('onBarcodeScanned', (barcode) => {
+    handleGetLabelData(barcode); 
+  });
 
-
+  return () => listener.remove();
+}, []);
 
   return (
         <SafeAreaView style = {{ flex : 1 ,backgroundColor : isDark ?  "#242424" : "whitesmoke", position : "relative",}}>
             <Header name = {t("Print.name")}></Header>
-            <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: "center", justifyContent :  "flex-start", alignItems :  "center"}}>
+            <ScrollView contentContainerStyle={{ flexGrow: 1,  justifyContent :  "flex-start", alignItems :  "center"}}>
 
                
             <Text style = {[styles.h1 , theme.h1]}>{t("Print.h1")}</Text>
             <View style = {[styles.containerInput]}>
-              <AnimatedTextInput style = {[styles.input,inputAnimation,theme.input] } 
-                  onChangeText={(text) => setCodeBare(text)}
+              
+            <View style={styles.inputWrapper}>
+                <AnimatedTextInput
+                  style={[styles.input, inputAnimation, theme.input]}
+                  onChangeText={(text) => 
+                    {
+                      if (!isProcessing) {
+                        setCodeBare(text);
+                      }
+                    }}
+                  editable={!isProcessing}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   value={codeBare}
-              ></AnimatedTextInput>
+                  ref={inputRef}
+                />
+
+                <Pressable
+                  style={styles.iconButton}
+                  onPress={() => {setCodeBare("");}}>
+                  <Image
+                    source={  isDark ?  require("@/assets/crossDark.png") : require("@/assets/crossLight.png")}
+                    style={styles.inputIcon}
+                  />
+                </Pressable>
+            </View>
 
               <Animated.Text style={[styles.label, labelAnimation,theme.label]}>{t("Print.label")}</Animated.Text>
             </View>
 
             <Pressable  onPress={()=>{
-              handleGetLabelData();
+              handleGetLabelData(codeBare);
                
                   
             }} style = {({pressed}) => [
@@ -216,16 +319,6 @@ const styles = StyleSheet.create({
       fontSize : 28,
 
       marginTop : hp("8%"),
-    },
-    input : {
-      width : "100%",
-      height : "100%",
-      paddingLeft : wp("3%"),
-      borderRadius : 5,
-
-      borderWidth : 0.5,
-
-      fontSize : 16
     },
     containerInput : {
       marginTop : hp("2.5%"),
@@ -317,6 +410,34 @@ const styles = StyleSheet.create({
       marginBottom : hp("3%"),
       fontWeight : "600"
 
-    }
+    },
+    inputWrapper: {
+      width: "100%",
+      height: "100%",
+      justifyContent: "center",
+    },
+
+    inputIcon: {
+      width: 15,
+      height: 15,
+      resizeMode: "contain",
+    },
+    iconButton: {
+      position: "absolute",
+      right: wp("5%"),
+      width: 25,
+      height: 25,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    input: {
+      width: "100%",
+      height: "100%",
+      paddingLeft: wp("3%"),
+      paddingRight: wp("12%"), 
+      borderRadius: 5,
+      borderWidth: 0.5,
+      fontSize: 16
+    },
 })
 

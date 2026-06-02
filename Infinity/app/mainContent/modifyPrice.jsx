@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable } from 'react-native'
+import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable,Image } from 'react-native'
 import React, { useState , useRef , useEffect} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from "@/components/Header"
@@ -86,7 +86,7 @@ const handleModifyPrice_1 = async () => {
     if (!codeBare.trim()) {
         return Toast.show({ type: "error", text1: t("modifyNotif.emptyBarCode")});
     }
-
+   
     try {
         const demande = await api.post(`/product/findProduct`, { codeBar: codeBare });
 
@@ -98,11 +98,11 @@ const handleModifyPrice_1 = async () => {
             setAvoidDuplicate(parseFloat(normalizedPrice).toFixed(2));             
             setIsModifying(true);
         } else {
-            Toast.show({ type: "error", text1: t("modifyNotif.invalidBarCode") });
+            Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
         }
 
     } catch (e) {
-        Toast.show({ type: "error", text1: t("modifyNotif.invalidBarCode")});
+        Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
         console.log(e)
     }
 }
@@ -133,13 +133,19 @@ const handleModifyPrice_2 = async () => {
     } 
     try {
         
-        await api.post(`/product/priceChange`, { codeBar: codeBare, price: numericPrice }); 
-
-        Toast.show({ type: "success", text1: t("modifyNotif.success") });
-        setIsModifying(false);
+        const demande = await api.post(`/product/priceChange`, { codeBar: codeBare, price: numericPrice }); 
+        if(demande.status == 200){
+          Toast.show({ type: "success", text1: t("modifyNotif.success") });
+          setIsModifying(false);
+        }
+        else{
+          Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
+        }
+        
 
     } catch (e) {
-        Toast.show({ type: "error", text1: t("modifyNotif.unknown") });
+        Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
+        console.log(e)
     }
 }
 
@@ -208,11 +214,26 @@ const handleModifyPrice_2 = async () => {
                
             <Text style = {[styles.h1,theme.h1]}>{t("Print.h1")}</Text>
             <View style = {styles.containerInput}>
+
+            <View style={styles.inputWrapper}>
               <AnimatedTextInput style = {[styles.input,inputAnimation,theme.input]}
                   onChangeText={(text) => setCodeBare(text)}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
+                  value={codeBare}
               ></AnimatedTextInput>
+
+                <Pressable
+                  style={styles.iconButton}
+                  onPress={() => {setCodeBare("");}}>
+                  <Image
+                    source={  isDark ?  require("@/assets/crossDark.png") : require("@/assets/crossLight.png")}
+                    style={styles.inputIcon}
+                  />
+                </Pressable>
+            </View>
+
+
 
               <Animated.Text style={[styles.label, labelAnimation,theme.label]}>{t("Print.label")}</Animated.Text>
             </View>
@@ -380,5 +401,33 @@ const styles = StyleSheet.create({
       marginBottom : hp("3%"),
       fontWeight : "600"
 
-    }
+    },
+    inputWrapper: {
+      width: "100%",
+      height: "100%",
+      justifyContent: "center",
+    },
+
+    inputIcon: {
+      width: 15,
+      height: 15,
+      resizeMode: "contain",
+    },
+    iconButton: {
+      position: "absolute",
+      right: wp("5%"),
+      width: 25,
+      height: 25,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    input: {
+      width: "100%",
+      height: "100%",
+      paddingLeft: wp("3%"),
+      paddingRight: wp("12%"), 
+      borderRadius: 5,
+      borderWidth: 0.5,
+      fontSize: 16
+    },
 })
