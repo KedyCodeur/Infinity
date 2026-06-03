@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable , FlatList , NativeModules , Image} from 'react-native'
-import React, { useState , useRef , useEffect} from 'react'
+import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable , FlatList , NativeModules , Image , Keyboard } from 'react-native'
+import React, { useState , useRef , useEffect , useCallback} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from "@/components/Header"
 import { useTranslation } from 'react-i18next'
@@ -8,6 +8,7 @@ import Animated ,{ useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useTheme } from '../../context/themeContext';
 import getApi from "@/utils/api.js"
 import Toast from 'react-native-toast-message';
+import { useFocusEffect } from '@react-navigation/native'
 import { DeviceEventEmitter } from 'react-native';
 const {SunmiCustom} = NativeModules;
 
@@ -124,23 +125,28 @@ const createLabel = () => {
     };
     
   })
-  const [quantity, setQuantity] = useState(1);
 
-  const [isProcessing, setIsProcessing] = useState(false);
+  const isProcessingRef = useRef(false);
   const inputRef = useRef(null);
+  const [isProcessing,setIsProcessing] = useState(false);
+
+  const setProcessing = (bool) => {
+      isProcessingRef.current = bool;
+      setIsProcessing(bool);
+  }
   
   const handleGetLabelData = async (codeBare) => {
     const api = apiRef.current;
-    if (isProcessing) return; 
-    setIsProcessing(true);
+    if (isProcessingRef.current) return; 
+     setProcessing(true);
 
     if (!api){
-      setIsProcessing(false);
+      setProcessing(false);
       return;
     };
 
     if (!codeBare.trim()) {
-        setIsProcessing(false);
+        setProcessing(false);
         return Toast.show({ type: "error", text1: t("modifyNotif.emptyBarCode")});
     }
 
@@ -244,18 +250,21 @@ const createLabel = () => {
           
       setCodeBare("");
 
-      setIsProcessing(false);
+      setProcessing(false);
     }
   }
   
 
-useEffect(() => {
-  const listener = DeviceEventEmitter.addListener('onBarcodeScanned', (barcode) => {
-    handleGetLabelData(barcode); 
-  });
+useFocusEffect(
+  useCallback(() => {
+      const listener = DeviceEventEmitter.addListener('onBarcodeScanned', (barcode) => {
+      handleGetLabelData(barcode);
+    });
 
-  return () => listener.remove();
-}, []);
+    return () => listener.remove();
+  }, [])
+);
+
 
   return (
         <SafeAreaView style = {{ flex : 1 ,backgroundColor : isDark ?  "#242424" : "whitesmoke", position : "relative",}}>

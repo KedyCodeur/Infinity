@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable,Image } from 'react-native'
-import React, { useState , useRef , useEffect} from 'react'
+import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable,Image , Keyboard } from 'react-native'
+import React, { useState , useRef , useEffect , useCallback} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from "@/components/Header"
 import { useTranslation } from 'react-i18next'
@@ -9,6 +9,9 @@ import { useTheme } from '../../context/themeContext';
 import { t } from 'i18next'
 import getApi from "@/utils/api.js"
 import Toast from 'react-native-toast-message';
+
+import { useFocusEffect } from '@react-navigation/native'
+import { DeviceEventEmitter } from 'react-native';
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
@@ -78,12 +81,27 @@ const ModifyPrice = () => {
     initApi();
   }, []);
 
-const handleModifyPrice_1 = async () => {
+  const isProcessingRef = useRef(false);
+  const inputRef = useRef(null);
+  const [isProcessing,setIsProcessing] = useState(false);
+
+  const setProcessing = (bool) => {
+      isProcessingRef.current = bool;
+      setIsProcessing(bool);
+  }
+
+const handleModifyPrice_1 = async (codeBare) => {
     const api = apiRef.current;
-    
-    if (!api) return;
+     if (isProcessingRef.current) return; 
+      setProcessing(true);
+
+    if (!api){
+        setProcessing(false);
+        return;
+    };
 
     if (!codeBare.trim()) {
+        setProcessing(false);
         return Toast.show({ type: "error", text1: t("modifyNotif.emptyBarCode")});
     }
    
@@ -98,37 +116,53 @@ const handleModifyPrice_1 = async () => {
             setAvoidDuplicate(parseFloat(normalizedPrice).toFixed(2));             
             setIsModifying(true);
         } else {
+            setProcessing(false);
             Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
         }
 
     } catch (e) {
+        setProcessing(false);
         Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
-        console.log(e)
+        
     }
 }
 
 const handleModifyPrice_2 = async () => {
     const api = apiRef.current;
     
-    if (!api) return Toast.show({ type: "error", text1: t("modifyNotif.unknown")});
+    if (!api) {
+      setProcessing(false);
+      return Toast.show({ type: "error", text1: t("modifyNotif.unknown")});
+    }
 
     if (!price.toString().trim() || !price) {
+        setProcessing(false);
         return Toast.show({ type: "error", text1: t("modifyNotif.emptyPrice") });
     }
 
 
     const regex = /^\d+(\.\d+)?$/; 
 
-    if (!regex.test(price)) return Toast.show({ type: "error", text1: t("modifyNotif.invalidPrice") });
+    if (!regex.test(price)){
+      setProcessing(false);
+      return Toast.show({ type: "error", text1: t("modifyNotif.invalidPrice") });
+    } 
 
     const numericPrice = parseFloat(price);
 
-    if (numericPrice > 15000) return Toast.show({ type: "error", text1: t("modifyNotif.quantityPositive")});
-    if (numericPrice < 0) return Toast.show({ type: "error", text1: t("modifyNotif.quantityNegative") });
+    if (numericPrice > 15000){
+      setProcessing(false);
+      return Toast.show({ type: "error", text1: t("modifyNotif.quantityPositive")});
+    } 
+    if (numericPrice < 0) {
+      setProcessing(false);
+      return Toast.show({ type: "error", text1: t("modifyNotif.quantityNegative") });
+    } 
 
     if(Number(avoidDuplicate) === Number(price)) {
       Toast.show({ type: "success", text1: t("modifyNotif.success")});
       setIsModifying(false);
+      setProcessing(false);
       return;
     } 
     try {
@@ -146,9 +180,21 @@ const handleModifyPrice_2 = async () => {
     } catch (e) {
         Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
         console.log(e)
+    }finally {
+
+      Keyboard.dismiss();
+      requestAnimationFrame(() => {
+              if (inputRef.current) {
+                  inputRef.current.blur();
+              }
+          });
+      setCodeBare("");
+      setProcessing(false);
     }
 }
 
+
+  
 
   const labelAnimation = useAnimatedStyle(()=>{
     
@@ -186,8 +232,6 @@ const handleModifyPrice_2 = async () => {
 
   })
 
-  
-  
 
   const inputAnimationModify = useAnimatedStyle(()=>{
     
@@ -206,6 +250,20 @@ const handleModifyPrice_2 = async () => {
       }
   })
 
+
+
+
+
+  useFocusEffect(
+    useCallback(() => {
+      const listener = DeviceEventEmitter.addListener('onBarcodeScanned', (barcode) => {
+          handleModifyPrice_1(barcode);
+      });
+
+      return () => listener.remove();
+    }, [])
+  );
+
   return (
         <SafeAreaView style = {{ flex : 1 ,backgroundColor : (isDark ? "#242424" : "whitesmoke") , position : "relative",}}>
             <Header name = {t("Modify.name")}></Header>
@@ -217,10 +275,17 @@ const handleModifyPrice_2 = async () => {
 
             <View style={styles.inputWrapper}>
               <AnimatedTextInput style = {[styles.input,inputAnimation,theme.input]}
-                  onChangeText={(text) => setCodeBare(text)}
+                  onChangeText={(text) => 
+                    {
+                      if (!isProcessing) {
+                        setCodeBare(text);
+                      }
+                    }}
+                  editable={!isProcessing}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   value={codeBare}
+                  ref={inputRef}
               ></AnimatedTextInput>
 
                 <Pressable
@@ -239,7 +304,7 @@ const handleModifyPrice_2 = async () => {
             </View>
 
             <Pressable  onPress={()=>{
-              handleModifyPrice_1();
+              handleModifyPrice_1(codeBare);
             }} style = {({pressed}) => [
               styles.button,{opacity : pressed ? 0.8 : 1},theme.button]}>
               <Text style = {[styles.buttonText,theme.buttonText]}
