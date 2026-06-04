@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable , FlatList , NativeModules , Image} from 'react-native'
-import React, { useState , useRef , useEffect} from 'react'
+import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable , FlatList , NativeModules , Image ,Keyboard} from 'react-native'
+import React, { useState , useRef , useEffect , useCallback} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from "@/components/Header"
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,9 @@ import Animated ,{ useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useTheme } from '../../context/themeContext';
 import getApi from "@/utils/api.js"
 import Toast from 'react-native-toast-message';
-import { DeviceEventEmitter } from 'react-native';
+import useHandleScanner from '@/hooks/useHandleScanner';
+import { isProcessingRef } from '../../utils/isProcessingRef';
+
 const {SunmiCustom} = NativeModules;
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
@@ -126,28 +128,37 @@ const createLabel = () => {
   })
   const [quantity, setQuantity] = useState(1);
 
+
   const [isProcessing, setIsProcessing] = useState(false);
   const inputRef = useRef(null);
+
+  const setProcessing = async (bool) => {
+     setIsProcessing(bool);
+     isProcessingRef.current = bool;
+  }
+
   
   const handleGetLabelData = async (codeBare) => {
     const api = apiRef.current;
-    if (isProcessing) return; 
-    setIsProcessing(true);
+    if (isProcessingRef.current) return; 
+
+    
 
     if (!api){
-      setIsProcessing(false);
       return;
     };
 
+    setProcessing(true);
+
     if (!codeBare.trim()) {
-        setIsProcessing(false);
+        setProcessing(false);
         return Toast.show({ type: "error", text1: t("modifyNotif.emptyBarCode")});
     }
 
     try {
+
         const demande = await api.post(`/product/createLabel`, { codeBar: codeBare });
-
-
+    
         if (demande.status === 200 && demande.data){
             const product = demande.data;
             
@@ -157,7 +168,7 @@ const createLabel = () => {
                 text1: t("printerErrors.dataError")
               });
             }
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
             if (product.lib_prd == null || product.lib_prd.trim() === ""){
                 return Toast.show({
                   type: "error",
@@ -210,52 +221,45 @@ const createLabel = () => {
                 "price" : price,
                 "currency" : "€"
             }
+          
             
            if ( !infos.productName?.trim() || !infos.refCode?.trim() || (!infos.price?.toString().trim() && infos.price !== "0")) return Toast.show({ type: "error", text1: t("printerErrors.dataError") });
               
             
             if(infos.uniteType && (!infos.contenu || !infos.pricePerKgL) ) return  Toast.show({ type: "error", text1: t("printerErrors.dataError") }) ;
+              
 
             await SunmiCustom.print(infos);
+
             
         } else {
             Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
         }
 
     } catch (e) {
-        if(e.code){
-          Toast.show({ type: "error",  text1: t(`printerErrors.${e.code}`, { defaultValue: t("printerErrors.unknown") }) })
-         
-          console.log(e.code)
-        }else{
-          Toast.show({ type: "error",   text1: t(`printerErrors.unknown`)});
+        if (e.response?.status) {
+            Toast.show({ type: "error", text1: t(`handleModifyPriceError.${e.response.status}`, { defaultValue: t("handleModifyPriceError.unknown") }) });
+        } else if (e.code) {
+            Toast.show({ type: "error", text1: t(`printerErrors.${e.code}`, { defaultValue: t("printerErrors.unknown") }) });
+        } else {
+            Toast.show({ type: "error", text1: t("printerErrors.unknown") });
         }
         
         console.log(e)
     }finally {
-
-      Keyboard.dismiss();
-      requestAnimationFrame(() => {
-              if (inputRef.current) {
-                  inputRef.current.blur();
-              }
-          });
-      
-          
-      setCodeBare("");
-
-      setIsProcessing(false);
+        setTimeout(() => {
+   
+            Keyboard.dismiss();
+            if (inputRef.current) inputRef.current.blur();
+            setCodeBare("");
+            setProcessing(false);
+         }, 500);
+  
     }
   }
   
 
-useEffect(() => {
-  const listener = DeviceEventEmitter.addListener('onBarcodeScanned', (barcode) => {
-    handleGetLabelData(barcode); 
-  });
-
-  return () => listener.remove();
-}, []);
+  useHandleScanner(handleGetLabelData, inputRef);
 
   return (
         <SafeAreaView style = {{ flex : 1 ,backgroundColor : isDark ?  "#242424" : "whitesmoke", position : "relative",}}>
@@ -271,7 +275,7 @@ useEffect(() => {
                   style={[styles.input, inputAnimation, theme.input]}
                   onChangeText={(text) => 
                     {
-                      if (!isProcessing) {
+                      if (!isProcessingRef.current) {
                         setCodeBare(text);
                       }
                     }}

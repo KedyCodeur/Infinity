@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable,Image } from 'react-native'
-import React, { useState , useRef , useEffect} from 'react'
+import { StyleSheet, Text, View, ScrollView, TextInput, Pressable, Image, Keyboard} from 'react-native'
+import React, { useState , useRef , useEffect , useCallback} from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from "@/components/Header"
 import { useTranslation } from 'react-i18next'
@@ -9,6 +9,8 @@ import { useTheme } from '../../context/themeContext';
 import { t } from 'i18next'
 import getApi from "@/utils/api.js"
 import Toast from 'react-native-toast-message';
+import useHandleScanner from '@/hooks/useHandleScanner';
+import { isProcessingRef } from '../../utils/isProcessingRef';
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
@@ -35,6 +37,7 @@ const ModifyPrice = () => {
   const [productName,setProductName] = useState("TADIM PEPITE NOIRE GRILLE SALLEE 270GR");
   
   const [codeBare , setCodeBare] = useState("");
+   const [codeBareRef , setCodeBareRef] = useState("");
 
   const theme = StyleSheet.create({
       h1 : {
@@ -66,10 +69,10 @@ const ModifyPrice = () => {
       }
   })
 
-  const [count,setCount] = useState(1);
+
   const apiRef = useRef(null);
 
-  useEffect(()=>{console.log(count)},[count])
+
 
   useEffect(() => {
     const initApi = async () => {
@@ -78,73 +81,103 @@ const ModifyPrice = () => {
     initApi();
   }, []);
 
-const handleModifyPrice_1 = async () => {
+const handleModifyPrice_1 = async (codeBare) => {
     const api = apiRef.current;
-    
-    if (!api) return;
+    if (isProcessingRef.current) return; 
+    setIsModifying(false);
 
-    if (!codeBare.trim()) {
-        return Toast.show({ type: "error", text1: t("modifyNotif.emptyBarCode")});
-    }
-   
+    
+
+    if (!api){
+      return;
+    };
+    setProcessing(true);
     try {
+        if (!codeBare.trim()) {
+            setProcessing(false);
+            return Toast.show({ type: "error", text1: t("modifyNotif.emptyBarCode")});
+        }
+   
+
         const demande = await api.post(`/product/findProduct`, { codeBar: codeBare });
 
-        if (demande.status === 200 || demande.data) {
+        if (demande.status === 200) {
+            console.log(demande.status)
             setProductName(demande.data.lib_prd);
             const raw = demande.data.uprice_wt ?? "0";
             const normalizedPrice = raw.toString().replace(",", ".");
             setPrice(parseFloat(normalizedPrice).toFixed(2));
             setAvoidDuplicate(parseFloat(normalizedPrice).toFixed(2));             
             setIsModifying(true);
-        } else {
+            setCodeBareRef(codeBare)
+            setCodeBare("");
+        } 
+        else {
+          if(demande.status == 422){
+            Toast.show({ type: "error",   text1: t(`printerErrors.dataError`)}); 
+          }else{
             Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
+          }
+            
         }
 
     } catch (e) {
-        Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
-        console.log(e)
+          if(e.response?.status == 422){
+            Toast.show({ type: "error",   text1: t(`printerErrors.dataError`)}); 
+          }else{
+            Toast.show({ type: "error",   text1: e.response?.status  ? t(`handleModifyPriceError.${e.response.status}`) : t("handleModifyPriceError.unknown")});
+          }
+      console.log(e)
+    }finally{
+        setTimeout(() => {
+            Keyboard.dismiss();
+            if (inputRef.current) inputRef.current.blur();
+            
+            setProcessing(false);
+         }, 600);
+        
     }
 }
 
 const handleModifyPrice_2 = async () => {
     const api = apiRef.current;
     
-    if (!api) return Toast.show({ type: "error", text1: t("modifyNotif.unknown")});
-
-    if (!price.toString().trim() || !price) {
-        return Toast.show({ type: "error", text1: t("modifyNotif.emptyPrice") });
-    }
-
-
-    const regex = /^\d+(\.\d+)?$/; 
-
-    if (!regex.test(price)) return Toast.show({ type: "error", text1: t("modifyNotif.invalidPrice") });
-
-    const numericPrice = parseFloat(price);
-
-    if (numericPrice > 15000) return Toast.show({ type: "error", text1: t("modifyNotif.quantityPositive")});
-    if (numericPrice < 0) return Toast.show({ type: "error", text1: t("modifyNotif.quantityNegative") });
-
-    if(Number(avoidDuplicate) === Number(price)) {
-      Toast.show({ type: "success", text1: t("modifyNotif.success")});
-      setIsModifying(false);
-      return;
-    } 
     try {
-        
-        const demande = await api.post(`/product/priceChange`, { codeBar: codeBare, price: numericPrice }); 
-        if(demande.status == 200){
-          Toast.show({ type: "success", text1: t("modifyNotif.success") });
-          setIsModifying(false);
-        }
-        else{
-          Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
-        }
+      if (!api) return Toast.show({ type: "error", text1: t("modifyNotif.unknown")});
+
+      if (!price.toString().trim() || !price) {
+          return Toast.show({ type: "error", text1: t("modifyNotif.emptyPrice") });
+      }
+
+
+      const regex = /^\d+(\.\d+)?$/; 
+      
+      if (!regex.test(price)) return Toast.show({ type: "error", text1: t("modifyNotif.invalidPrice") });
+
+      const numericPrice = parseFloat(price);
+
+      if (numericPrice > 15000) return Toast.show({ type: "error", text1: t("modifyNotif.quantityPositive")});
+      if (numericPrice < 0) return Toast.show({ type: "error", text1: t("modifyNotif.quantityNegative") });
+
+      if(Number(avoidDuplicate) === Number(price)) {
+        Toast.show({ type: "success", text1: t("modifyNotif.success")});
+        setIsModifying(false);
+        return;
+      } 
+
+          
+          const demande = await api.post(`/product/priceChange`, { codeBar: codeBareRef, price: numericPrice }); 
+          if(demande.status == 200){
+            Toast.show({ type: "success", text1: t("modifyNotif.success") });
+            setIsModifying(false);
+          }
+          else{
+            Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
+          }
         
 
     } catch (e) {
-        Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
+        Toast.show({ type: "error", text1: e.response?.status ? t(`handleModifyPriceError.${e.response.status}`) : t("handleModifyPriceError.unknown") });
         console.log(e)
     }
 }
@@ -161,9 +194,6 @@ const handleModifyPrice_2 = async () => {
 
   })
 
-  
-  
-
   const inputAnimation = useAnimatedStyle(()=>{
     
     return{
@@ -173,7 +203,6 @@ const handleModifyPrice_2 = async () => {
     };
     
   })
-
 
   const labelAnimationModify = useAnimatedStyle(()=>{
     
@@ -185,9 +214,6 @@ const handleModifyPrice_2 = async () => {
     };
 
   })
-
-  
-  
 
   const inputAnimationModify = useAnimatedStyle(()=>{
     
@@ -206,6 +232,17 @@ const handleModifyPrice_2 = async () => {
       }
   })
 
+  const [isProcessing, setIsProcessing] = useState(false);
+  const inputRef = useRef(null);
+
+  const setProcessing = async (bool) => {
+     setIsProcessing(bool);
+     isProcessingRef.current = bool;
+  }
+
+
+  useHandleScanner(handleModifyPrice_1, inputRef);
+  
   return (
         <SafeAreaView style = {{ flex : 1 ,backgroundColor : (isDark ? "#242424" : "whitesmoke") , position : "relative",}}>
             <Header name = {t("Modify.name")}></Header>
@@ -217,10 +254,17 @@ const handleModifyPrice_2 = async () => {
 
             <View style={styles.inputWrapper}>
               <AnimatedTextInput style = {[styles.input,inputAnimation,theme.input]}
-                  onChangeText={(text) => setCodeBare(text)}
+                  onChangeText={(text) => 
+                    {
+                      if (!isProcessingRef.current) {
+                        setCodeBare(text);
+                      }
+                    }}
+                  editable={!isProcessing}
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   value={codeBare}
+                  ref={inputRef}
               ></AnimatedTextInput>
 
                 <Pressable
@@ -239,7 +283,7 @@ const handleModifyPrice_2 = async () => {
             </View>
 
             <Pressable  onPress={()=>{
-              handleModifyPrice_1();
+              handleModifyPrice_1(codeBare);
             }} style = {({pressed}) => [
               styles.button,{opacity : pressed ? 0.8 : 1},theme.button]}>
               <Text style = {[styles.buttonText,theme.buttonText]}

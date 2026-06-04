@@ -20,7 +20,7 @@ const getApi = async () => {
 
   const baseURL = "http://" + webAdress;
 
-  apiInstance = axios.create({ baseURL });
+  apiInstance = axios.create({ baseURL, timeout: 2000});
 
   apiInstance.interceptors.request.use(async (config) => {
     const token =  await storageGetItem("accessToken");

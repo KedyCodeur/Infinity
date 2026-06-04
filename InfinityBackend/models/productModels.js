@@ -90,16 +90,26 @@ const findProduct =  async (req,res) => {
     }
 
     const query = `
-      SELECT p.lib_prd , tp.uprice_wt  FROM produits p JOIN codebarres as cb ON p.id = cb.id_prd JOIN tarifs_produits as tp ON p.id = tp.id_prd WHERE cb.cod_barr = ?
+        SELECT p.lib_prd, tp.uprice_wt 
+        FROM codebarres cb
+        LEFT JOIN produits p ON cb.id_prd = p.id
+        LEFT JOIN tarifs_produits tp ON cb.id_prd = tp.id_prd
+        WHERE cb.cod_barr = ?
+        LIMIT 1
     `;
 
     try{
-
+        
         const [result] = await db.execute(query,[codeBar]);
 
-        if(result.length === 0){
-           return res.status(404).json({ err: "Barcode not found" });
+        if (!result || result.length === 0) {
+            return res.status(404).json({ err: "Barcode not found" });
         }
+
+        if (result[0].uprice_wt == null || result[0].lib_prd == null) {
+            return res.status(422).json({ err: "Price not found" });
+        }
+
         return res.status(200).json({success: "Product Found" ,  ...result[0]});
 
     }catch(e){

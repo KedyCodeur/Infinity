@@ -125,19 +125,23 @@ public static Bitmap createBarCode(String barcode) {
         paint.setPathEffect(null);
     }
 
+private String safeGetString(ReadableMap map, String key) {
+    return map.hasKey(key) && !map.isNull(key) ? map.getString(key) : "";
+}
+
 @ReactMethod
 public void print(ReadableMap infos, Promise promise) {
     try {
-        if (MainApplication.getInstance().sunmiPrinter != null) {
-            
-            String barcodeValue = infos.getString("barcodeValue");
-            String productName = infos.getString("productName");
-            String refCode = infos.getString("refCode");
-            String uniteType = infos.getString("uniteType");
-            String contenu = infos.getString("contenu");
-            String pricePerKgL = infos.getString("pricePerKgL");
-            String price = infos.getString("price");
-            String currency = infos.getString("currency");
+            if (MainApplication.getInstance().sunmiPrinter != null) {
+                
+            String barcodeValue = safeGetString(infos, "barcodeValue");
+            String productName = safeGetString(infos, "productName");
+            String refCode = safeGetString(infos, "refCode");
+            String uniteType = safeGetString(infos, "uniteType");
+            String contenu = safeGetString(infos, "contenu");
+            String pricePerKgL = safeGetString(infos, "pricePerKgL");
+            String price = safeGetString(infos, "price");
+            String currency = safeGetString(infos, "currency");
 
             int code = MainApplication.getInstance().sunmiPrinter.updatePrinterState();
             
@@ -281,23 +285,13 @@ public void print(ReadableMap infos, Promise promise) {
 
             try {   
                     MainApplication.getInstance().sunmiPrinter.printerInit(null);
-                    MainApplication.getInstance().sunmiPrinter.printBitmap(label, new InnerResultCallback() {
-                        @Override public void onPrintResult(int code, String msg) {
-                            label.recycle();
-                            if (barcode != null) barcode.recycle();
-                            promise.resolve("Ok");
-                            
-                        }
-                        @Override public void onRaiseException(int code, String msg) {
-                            label.recycle();
-                            if (barcode != null) barcode.recycle();
-                            promise.reject( String.valueOf(code), msg );
-                        }
-                        @Override public void onRunResult(boolean b) {}
-                        @Override public void onReturnString(String s) {}
-                    });
+                    MainApplication.getInstance().sunmiPrinter.printBitmap(label, null);
                     MainApplication.getInstance().sunmiPrinter.lineWrap(3, null);
-                } catch (android.os.RemoteException e) {
+                    label.recycle();
+                    if (barcode != null) barcode.recycle();
+                    promise.resolve("Ok");
+                } 
+                catch (android.os.RemoteException e) {
                 
                     promise.reject("REMOTE_ERR", e.getMessage());
                 }
