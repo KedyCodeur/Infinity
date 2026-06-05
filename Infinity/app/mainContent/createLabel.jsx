@@ -197,7 +197,16 @@ const createLabel = () => {
             let contenu;
             let pricePerKgL;
 
-            if(product.unite_contenu){
+
+
+            let unite_contenu = product.unite_contenu ?? "" ;
+            const listUniteCalculate = ["l","kg","gr"];
+
+            if(!listUniteCalculate.includes(unite_contenu.toLowerCase())){
+               unite_contenu = "";
+            }
+
+            if(unite_contenu){
 
                 if (product.contenu == null || product.contenu === "" || isNaN(Number(product.contenu))) {
                   return Toast.show({
@@ -207,23 +216,38 @@ const createLabel = () => {
                   });
                 }
 
+
                 contenu = parseFloat(parseFloat(product.contenu).toFixed(3)).toString();
+
+                if(unite_contenu.toLowerCase() == "gr"){
+                  contenu = parseFloat((parseFloat(contenu) / 1000).toFixed(3)).toString();
+                  unite_contenu = "Kg";
+                }
+
                 price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
-                pricePerKgL = parseFloat((price / parseFloat(product.contenu)).toFixed(2)).toString();
+                pricePerKgL = parseFloat((price / parseFloat(contenu)).toFixed(2)).toString();
                 price = price.toString();
 
-            }else{
+
+
+
+
+
+
+
+            }
+            else{
               price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
               price = price.toString();
             }
 
-          
+            
             
             const infos = {
                 "barcodeValue" : codeBare,
                 "productName" : nameProduct,
                 "refCode" : product.ref_prd,
-                "uniteType" : product.unite_contenu,
+                "uniteType" : unite_contenu ,
                 "contenu" :contenu,
                 "pricePerKgL" : pricePerKgL,
                 "price" : price,
