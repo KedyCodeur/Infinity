@@ -41,7 +41,8 @@ const fr = {
         "ERR_429": "Trop de requêtes, veuillez réessayer plus tard",
         "ERR_500": "Erreur de serveur",
         "OK_200": "Connexion réussie, bienvenue !",
-        "ERR_UNKNOWN": "Une erreur inconnue est survenue"
+        "ERR_UNKNOWN": "Une erreur inconnue est survenue",
+        ERR_NETWORK: "Serveur inaccessible, vérifiez le serveur et le réseau"
     },
     modifyNotif: {
         emptyBarCode: "Le code-barres ne peut pas être vide",
@@ -69,8 +70,19 @@ const fr = {
         505: "Imprimante non connectée",
         507: "Erreur firmware",
         REMOTE_ERR: "Erreur de connexion",
+        ERR_NETWORK : "Erreur réseau",
         dataError: "Données invalides. Veuillez vérifier les informations.",
         unknown: "Erreur inconnue"
+    },
+    httpsText2: {
+        500: "Serveur inaccessible, vérifiez le serveur et le réseau",
+        429: "Trop de requêtes, attendez 30 secondes",
+        ERR_429: "Trop de requêtes, attendez 30 secondes",
+        ERR_500: "Serveur inaccessible, vérifiez le serveur et le réseau",
+        1: "Trop de requêtes, attendez 30 secondes",
+        7: "Bourrage papier, vérifiez l'imprimante",
+        ERR_NETWORK: "Serveur inaccessible, vérifiez le serveur et le réseau",
+        dataError: "Données produit invalides en base de données"
     }
 
 }

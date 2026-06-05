@@ -6,7 +6,6 @@ import { useTranslation } from 'react-i18next'
 import { widthPercentageToDP as wp , heightPercentageToDP as hp }  from 'react-native-responsive-screen'
 import Animated ,{ useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import { useTheme } from '../../context/themeContext';
-import { t } from 'i18next'
 import getApi from "@/utils/api.js"
 import Toast from 'react-native-toast-message';
 import useHandleScanner from '@/hooks/useHandleScanner';
@@ -22,7 +21,7 @@ const labelDown = -hp("1.1%");
 
 const ModifyPrice = () => {
 
-  const { t } = useTranslation(); 
+  const { t, i18n } = useTranslation();
 
   const [isFocused,setIsFocused] = useState(false)
 
@@ -72,7 +71,10 @@ const ModifyPrice = () => {
 
   const apiRef = useRef(null);
 
-
+  const getText2 = (key) => {
+    const fullKey = `httpsText2.${key}`;
+    return i18n.exists(fullKey) ? t(fullKey) : undefined;
+  };
 
   useEffect(() => {
     const initApi = async () => {
@@ -114,19 +116,24 @@ const handleModifyPrice_1 = async (codeBare) => {
         } 
         else {
           if(demande.status == 422){
-            Toast.show({ type: "error",   text1: t(`printerErrors.dataError`)}); 
+            Toast.show({ type: "error",   text1: t(`printerErrors.dataError`), text2: t('httpsText2.dataError')}); 
           }else{
-            Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
+           Toast.show({ type: "error", text1: demande.status ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown"), text2: getText2(demande.status) });
           }
             
         }
 
     } catch (e) {
-          if(e.response?.status == 422){
-            Toast.show({ type: "error",   text1: t(`printerErrors.dataError`)}); 
+          if (e.response?.status) {
+            if(e.response.status == 422){
+              Toast.show({ type: "error",   text1: t(`printerErrors.dataError`), text2: t('httpsText2.dataError')}); 
+            }else{
+              Toast.show({ type: "error", text1: t(`handleModifyPriceError.${e.response?.status || e.code}`, { defaultValue: t("handleModifyPriceError.unknown") }), text2: getText2(e.response.status)});
+            }
           }else{
-            Toast.show({ type: "error",   text1: e.response?.status  ? t(`handleModifyPriceError.${e.response.status}`) : t("handleModifyPriceError.unknown")});
+            Toast.show({ type: "error", text1: t(`printerErrors.${e.code}`, { defaultValue: t("handleModifyPriceError.unknown") }), text2: getText2(e.code) });
           }
+
       console.log(e)
     }finally{
         setTimeout(() => {
@@ -172,13 +179,17 @@ const handleModifyPrice_2 = async () => {
             setIsModifying(false);
           }
           else{
-            Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
+            Toast.show({ type: "error", text1: demande.status ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown"), text2: getText2(demande.status) });
           }
         
 
     } catch (e) {
-        Toast.show({ type: "error", text1: e.response?.status ? t(`handleModifyPriceError.${e.response.status}`) : t("handleModifyPriceError.unknown") });
-        console.log(e)
+          if (e.response?.status) {
+              Toast.show({ type: "error", text1: t(`handleModifyPriceError.${e.response?.status}`, { defaultValue: t("handleModifyPriceError.unknown") }), text2: getText2(e.response?.status) });
+          }
+          else{
+              Toast.show({ type: "error", text1: t(`printerErrors.${e.code}`, { defaultValue: t("handleModifyPriceError.unknown") }), text2: getText2(e.code) });
+          }
     }
 }
 

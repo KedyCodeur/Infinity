@@ -40,7 +40,8 @@ const tr = {
         "ERR_429": "Çok fazla istek, lütfen daha sonra tekrar deneyin",
         "ERR_500": "Sunucu hatası",
         "OK_200": "Giriş başarılı, hoş geldiniz!",
-        "ERR_UNKNOWN": "Bilinmeyen bir hata oluştu"
+        "ERR_UNKNOWN": "Bilinmeyen bir hata oluştu",
+        ERR_NETWORK: "Sunucuya ulaşılamıyor, sunucu ve ağı kontrol edin"
     },
     modifyNotif: {
         emptyBarCode: "Barkod boş olamaz",
@@ -68,8 +69,19 @@ const tr = {
         505: "Yazıcı bağlı değil",
         507: "Yazıcı yazılım hatası",
         REMOTE_ERR: "Servis bağlantı hatası",
+        ERR_NETWORK : "Ağ hatası",
         dataError: "Geçersiz veri. Lütfen bilgileri kontrol edin.",
         unknown: "Bilinmeyen hata"
+    },
+    httpsText2: {
+        500: "Sunucuya ulaşılamıyor, sunucu ve ağ bağlantısını kontrol edin",
+        429: "Çok fazla istek, 30 saniye bekleyin",
+        ERR_429: "Çok fazla istek, 30 saniye bekleyin",
+        ERR_500: "Sunucuya ulaşılamıyor, sunucu ve ağ bağlantısını kontrol edin",
+        1: "Çok fazla istek, 30 saniye bekleyin",
+        7: "Kağıt sıkışması, yazıcıyı kontrol edin",
+        ERR_NETWORK: "Sunucuya ulaşılamıyor, sunucu ve ağ bağlantısını kontrol edin",
+        dataError: "Veritabanında geçersiz ürün verisi"
     }
 
 }

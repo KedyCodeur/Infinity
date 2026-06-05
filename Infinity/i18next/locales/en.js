@@ -40,7 +40,8 @@ const en = {
         "ERR_429": "Too many requests, please try again later",
         "ERR_500": "Server error",
         "OK_200": "Login successful, welcome!",
-        "ERR_UNKNOWN": "An unknown error occurred"
+        "ERR_UNKNOWN": "An unknown error occurred",
+         ERR_NETWORK: "Server unreachable, check server and network",
     },
     modifyNotif : {
         emptyBarCode : "Barcode cannot be empty",
@@ -59,6 +60,7 @@ const en = {
         429: "Too many requests please wait",
         unknown : "Unknown error",
     },
+
     printerErrors : {
         1: "Printer is busy",
         4: "Printer out of paper",
@@ -68,8 +70,20 @@ const en = {
         505: "Printer not connected",
         507: "Printer firmware error",
         REMOTE_ERR: "Printer service connection error",
+        ERR_NETWORK : "Network error",
         dataError: "Invalid data received. Please verify the information.",
         unknown : "Unknown error",
+    },
+
+    httpsText2: {
+        500: "Server unreachable, check server and network",
+        429: "Too many requests, wait 30 seconds",
+        ERR_429: "Too many requests, wait 30 seconds",
+        ERR_500: "Server unreachable, check server and network",
+        1: "Too many requests, wait 30 seconds",
+        7: "Paper jam, check the printer",
+        ERR_NETWORK: "Server unreachable, check server and network",
+        dataError: "Invalid product data in database"
     }
 
 }

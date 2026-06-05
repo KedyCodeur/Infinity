@@ -96,13 +96,17 @@ const createLabel = () => {
         backgroundColor : isDark ? "#0676b9" : "#0398D5"
       }
   })
-  const { t } = useTranslation(); 
+  const { t, i18n } = useTranslation();
 
   const [isFocused,setIsFocused] = useState(false)
 
   
 
   
+  const getText2 = (key) => {
+    const fullKey = `httpsText2.${key}`;
+    return i18n.exists(fullKey) ? t(fullKey) : undefined;
+  };
 
   const labelAnimation = useAnimatedStyle(()=>{
 
@@ -165,21 +169,24 @@ const createLabel = () => {
             if (product.uprice_wt == null || product.uprice_wt === "" || isNaN(Number(product.uprice_wt))) {
               return Toast.show({
                 type: "error",
-                text1: t("printerErrors.dataError")
+                text1: t("printerErrors.dataError"),
+                text2 : getText2("dataError")
               });
             }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
             if (product.lib_prd == null || product.lib_prd.trim() === ""){
                 return Toast.show({
                   type: "error",
-                  text1: t("printerErrors.dataError")
+                  text1: t("printerErrors.dataError"),
+                  text2 : getText2("dataError")
                 });             
             }
 
             if (product.ref_prd == null || product.ref_prd.trim() === ""){
                 return Toast.show({
                   type: "error",
-                  text1: t("printerErrors.dataError")
+                  text1: t("printerErrors.dataError"),
+                  text2 : getText2("dataError")
                 });             
             }
 
@@ -195,7 +202,8 @@ const createLabel = () => {
                 if (product.contenu == null || product.contenu === "" || isNaN(Number(product.contenu))) {
                   return Toast.show({
                     type: "error",
-                    text1: t("printerErrors.dataError")
+                    text1: t("printerErrors.dataError"),
+                    text2 : getText2("dataError")
                   });
                 }
 
@@ -223,24 +231,24 @@ const createLabel = () => {
             }
           
             
-           if ( !infos.productName?.trim() || !infos.refCode?.trim() || (!infos.price?.toString().trim() && infos.price !== "0")) return Toast.show({ type: "error", text1: t("printerErrors.dataError") });
+           if ( !infos.productName?.trim() || !infos.refCode?.trim() || (!infos.price?.toString().trim() && infos.price !== "0")) return Toast.show({ type: "error", text1: t("printerErrors.dataError") , text2 : getText2("dataError") });
               
             
-            if(infos.uniteType && (!infos.contenu || !infos.pricePerKgL) ) return  Toast.show({ type: "error", text1: t("printerErrors.dataError") }) ;
+            if(infos.uniteType && (!infos.contenu || !infos.pricePerKgL) ) return  Toast.show({ type: "error", text1: t("printerErrors.dataError") , text2 : getText2("dataError") }) ;
               
 
             await SunmiCustom.print(infos);
 
             
         } else {
-            Toast.show({ type: "error",   text1: demande.status  ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown")});
+            Toast.show({ type: "error", text1: demande.status ? t(`handleModifyPriceError.${demande.status}`) : t("handleModifyPriceError.unknown"), text2: getText2(demande.status) });
         }
 
     } catch (e) {
         if (e.response?.status) {
-            Toast.show({ type: "error", text1: t(`handleModifyPriceError.${e.response.status}`, { defaultValue: t("handleModifyPriceError.unknown") }) });
+            Toast.show({ type: "error", text1: t(`handleModifyPriceError.${e.response?.status}`, { defaultValue: t("handleModifyPriceError.unknown") }), text2: getText2(e.response?.status) });
         } else if (e.code) {
-            Toast.show({ type: "error", text1: t(`printerErrors.${e.code}`, { defaultValue: t("printerErrors.unknown") }) });
+            Toast.show({ type: "error", text1: t(`printerErrors.${e.code}`, { defaultValue: t("printerErrors.unknown") }), text2: getText2(e.code) });
         } else {
             Toast.show({ type: "error", text1: t("printerErrors.unknown") });
         }

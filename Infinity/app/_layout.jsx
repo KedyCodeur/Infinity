@@ -1,10 +1,8 @@
 import { Stack } from 'expo-router'
-import { useAnimatedStyle } from 'react-native-reanimated';
 import Toast, { BaseToast } from 'react-native-toast-message';
 
 
 export default function RootLayout() {
-
 
 
 

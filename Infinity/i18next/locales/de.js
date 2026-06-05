@@ -41,7 +41,8 @@ const de = {
         "ERR_429": "Zu viele Anfragen, bitte versuchen Sie es später erneut",
         "ERR_500": "Serverfehler",
         "OK_200": "Anmeldung erfolgreich, willkommen!",
-        "ERR_UNKNOWN": "Ein unbekannter Fehler ist aufgetreten"
+        "ERR_UNKNOWN": "Ein unbekannter Fehler ist aufgetreten",
+        ERR_NETWORK: "Server unerreichbar, Server und Netzwerk prüfen"
     },
     modifyNotif: {
         emptyBarCode: "Barcode darf nicht leer sein",
@@ -69,8 +70,19 @@ const de = {
         505: "Drucker nicht verbunden",
         507: "Firmware-Fehler",
         REMOTE_ERR: "Dienstverbindungsfehler",
+        ERR_NETWORK : "Netzwerkfehler",
         dataError: "Ungültige Daten. Bitte Informationen prüfen.",
         unknown: "Unbekannter Fehler"
+    },
+    httpsText2: {
+        500: "Server nicht erreichbar, Server und Netzwerk prüfen",
+        429: "Zu viele Anfragen, 30 Sekunden warten",
+        ERR_429: "Zu viele Anfragen, 30 Sekunden warten",
+        ERR_500: "Server nicht erreichbar, Server und Netzwerk prüfen",
+        1: "Zu viele Anfragen, 30 Sekunden warten",
+        7: "Papierstau, Drucker prüfen",
+        ERR_NETWORK: "Server nicht erreichbar, Server und Netzwerk prüfen",
+        dataError: "Ungültige Produktdaten in der Datenbank"
     }
 
 

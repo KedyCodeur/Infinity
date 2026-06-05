@@ -40,7 +40,8 @@ const nl = {
         "ERR_429": "Te veel verzoeken, probeer het later opnieuw",
         "ERR_500": "Serverfout",
         "OK_200": "Inloggen geslaagd, welkom!",
-        "ERR_UNKNOWN": "Er is een onbekende fout opgetreden"
+        "ERR_UNKNOWN": "Er is een onbekende fout opgetreden",
+        ERR_NETWORK: "Server onbereikbaar, controleer server en netwerk"
     },
     modifyNotif: {
         emptyBarCode: "Barcode mag niet leeg zijn",
@@ -68,8 +69,19 @@ const nl = {
         505: "Printer niet verbonden",
         507: "Printer firmwarefout",
         REMOTE_ERR: "Service verbindingsfout",
+        ERR_NETWORK : "Netwerkfout",
         dataError: "Ongeldige data. Controleer de gegevens.",
         unknown: "Onbekende fout"
+    },
+    httpsText2: {
+        500: "Server onbereikbaar, controleer server en netwerk",
+        429: "Te veel verzoeken, wacht 30 seconden",
+        ERR_429: "Te veel verzoeken, wacht 30 seconden",
+        ERR_500: "Server onbereikbaar, controleer server en netwerk",
+        1: "Te veel verzoeken, wacht 30 seconden",
+        7: "Papierstoring, controleer de printer",
+        ERR_NETWORK: "Server onbereikbaar, controleer server en netwerk",
+        dataError: "Ongeldige productgegevens in database"
     }
     
 }

@@ -12,53 +12,34 @@ import {storageGetItem,storageSetItem} from "@/utils/storage.js"
 import { KeyboardAvoidingView, Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { jwtDecode } from "jwt-decode";
-import { refToken } from '../utils/refToken';
 import * as SecureStore from 'expo-secure-store';
+import { refToken } from '@/utils/refToken';
 
 
 const login = () => {
     
     const router = useRouter();
 
-
+  const getText2 = (key) => {
+    const fullKey = `httpsText2.${key}`;
+    return i18n.exists(fullKey) ? t(fullKey) : undefined;
+  };
 
     
 
 
-    const { t } = useTranslation(); 
+    const { t, i18n } = useTranslation();
     const colorPressed = "#0676b9"
     const [isActive,setIsActive] = useState(false);
     const [isShowing , setIsShowing] = useState(false);
     const [isRememberMe , setIsRememberMe] = useState(false);
     
 
-    const [loginErreur,setLoginErreur] = useState("")
     const  [webAdressValue,setWebAdressValue]= useState("");
     const usernameRef = useRef("");
     const passwordRef = useRef("");
 
     useEffect(()=>{
-
-        const getRefToken = async () => {
-        const token = await SecureStore.getItemAsync('refreshToken');
-            if(token){
-                try{
-                    
-                    const decoded = await jwtDecode(token);
-
-                    let msg = t("LoginNotif.OK_200") + " " + (decoded?.username || "");
-                    Toast.show({type : "success" , text1 : msg})
-                    setLoginErreur("");
-                    router.replace("/mainContent/createLabel")
-                }catch(e){
-                    await SecureStore.deleteItemAsync('refreshToken');
-                }
-            }
-        }
-
-         getRefToken();
-
-
 
         const getWebAdress = async () => {
           const webAdress =   await storageGetItem("webAdress")
@@ -95,36 +76,44 @@ const login = () => {
             await storageSetItem("accessToken",data.accessToken);
             let msg = t("LoginNotif.OK_200") + " " + (decoded?.username || "");
             Toast.show({type : "success" , text1 : msg})
-            setLoginErreur("");
+     
             router.replace("/mainContent/createLabel")
             
             
         }catch(e){
            const status = e.status || (e.response ? e.response.status : "");
-
+            console.log(e.code , e.status)
            let msg 
-           switch(status){
-            case 400 :
-                msg = "ERR_400";
-                break;
-            case 401 : 
-                msg = "ERR_401";
-                break;
-            case 404:
-                msg = "ERR_404"
-                break
-            case 429: 
-                msg = "ERR_429"
-                break
-            case 500 : 
-                msg = "ERR_500";
-                break;
-            default :
-                msg = "ERR_UNKNOWN"      
-                break;
+
+            if(status) {
+            switch(status){
+                case 400 :
+                    msg = "ERR_400";
+                    break;
+                case 401 : 
+                    msg = "ERR_401";
+                    break;
+                case 404:
+                    msg = "ERR_404"
+                    break
+                case 429: 
+                    msg = "ERR_429"
+                    break
+                case 500 : 
+                    msg = "ERR_500";
+                    break;
+                default :
+                    msg = "ERR_UNKNOWN"      
+                    break;
+            }
+
+            Toast.show({ type: "error", text1: t(`LoginNotif.${msg}`), text2: getText2(msg) })
+
+                    
+            }else{
+                Toast.show({ type: "error", text1: t(`LoginNotif.${e.code ?? "ERR_UNKNOWN"}`)})
            }
 
-           Toast.show({type : "error" ,text1: t(`LoginNotif.${msg}`) })
             
         }
 

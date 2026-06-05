@@ -1,5 +1,5 @@
 import { View, Text , Image , StyleSheet , FlatList, Pressable} from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect ,useRef } from 'react'
 import { useState } from 'react';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { SafeAreaFrameContext } from 'react-native-safe-area-context';
@@ -8,7 +8,7 @@ import { storageGetItem, storageSetItem} from '../utils/storage'
 import { useTranslation } from 'react-i18next';
 import Animated ,{ useAnimatedStyle, useSharedValue, withTiming ,Easing} from 'react-native-reanimated';
 import { ScrollView } from "react-native";
-
+import { usePathname } from 'expo-router';
 
 
     
@@ -48,6 +48,16 @@ const LanguagePicker = ({lang,setter}) => {
       loadLang();
     }, []);
 
+  
+  const pathname = usePathname();
+  const prevPathname = useRef(pathname);
+
+  useEffect(() => {
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname;
+      setActiveFlag(i18n.language.toUpperCase());
+    }
+  }, [pathname]);
 
   const handleLanguageChange = async (id) => {
       setActiveFlag(id);
