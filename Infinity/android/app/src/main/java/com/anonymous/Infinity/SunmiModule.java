@@ -158,13 +158,14 @@ public void print(ReadableMap infos, Promise promise) {
             int lines = layout.getLineCount();
 
             switch(lines){
-                case 1 -> space = 110;
-                case 2 -> space = 85;
-                case 3 -> space = 48;
+                case 1 -> space = 90;
+                case 2 -> space = 55;
+                case 3 -> space = 46;
             }
 
+
             int width = 384;
-            int height = 275;
+            int height = 244; // 275
           
             Bitmap label = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(label);
@@ -183,7 +184,7 @@ public void print(ReadableMap infos, Promise promise) {
            
             
             int x = 0;
-            int y =  20;
+            int y =  0;
 
             
 
