@@ -1,0 +1,15 @@
+# EAS Build'in kendi kendine oluşturması gerekenler
+node_modules/
+dist/
+.expo/
+
+# Gereksiz Build Çıktıları (Boyutu şişirenler)
+android/app/build/
+android/build/
+ios/build/
+
+# Geri kalan her şey kalsın (Kendi yazdığın kodlar için)
+!android/app/src/main/java/
+!android/app/src/main/AndroidManifest.xml
+!android/app/build.gradle
+!android/app/proguard-rules.pro
