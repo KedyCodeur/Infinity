@@ -42,11 +42,8 @@ app-example
 /ios
 /android/
 
-!/android/app/src/main/java/
-!/android/app/src/main/AndroidManifest.xml
-!/android/app/build.gradle
-!/android/gradle/
-!/android/gradlew
-!/android/gradlew.bat
-!/android/settings.gradle
-!/android/build.gradle
+!android/app/src/main/java/
+!android/app/src/main/AndroidManifest.xml
+!android/app/build.gradle
+!android/app/proguard-rules.pro
+
