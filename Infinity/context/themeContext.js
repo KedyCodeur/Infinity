@@ -5,12 +5,13 @@ import { storageGetItem, storageSetItem } from '@/utils/storage'
 const ThemeContext = createContext()
 
 export const ThemeProvider = ({ children }) => {
-    const [isDark, setIsDark] = useState(true)
+    const [isDark, setIsDark] = useState(false)
 
     useEffect(() => {
         const load = async () => {
             const saved = await storageGetItem("theme")
             if (saved !== null) setIsDark(saved)
+                console.log(saved)
         }
         load()
     }, [])
