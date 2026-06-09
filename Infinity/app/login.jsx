@@ -145,7 +145,8 @@ const login = () => {
                             <TextInput style = {Styles.Input} onChangeText={(text) => usernameRef.current = text}  />
                         </View>
 
-                        <View >
+                        <View>
+
                             <Text  style = {Styles.Label}  >{t('Login.password')}</Text>
 
                             <View style = {Styles.passwordView} >
@@ -156,7 +157,6 @@ const login = () => {
                                 </Pressable>
                             </View>
                             
-                        
                         </View>
 
                         <Pressable onPress={()=>{setIsRememberMe(!isRememberMe)}} style = {{alignItems : "flex-start"}}>
@@ -210,7 +210,9 @@ const Styles = StyleSheet.create({
       backgroundColor : "whitesmoke",
       borderColor : "gray",
       borderWidth : 0.2,
-      borderRadius: 5
+      borderRadius: 5,
+      color : "black",
+       paddingHorizontal: 10, 
     },
     LittleContainer : {
       marginTop :hp("1%"),
@@ -248,7 +250,8 @@ const Styles = StyleSheet.create({
     },
     InputOnly: {
         flex: 1,
-        height: "100%"
+        height: "100%",
+        color : "black"
     },
     eyeIcon: {
         width: 25,

@@ -15,7 +15,7 @@
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
       "foregroundImage": "./assets/images/logoIcon.png",  // şeffaf bg'li olan
-      "backgroundColor": "#1E1E23"
+      "backgroundColor": "#1D1D1F"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -33,9 +33,9 @@
           "image": "./assets/images/logoIcon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#1D1D1F",
+          "backgroundColor": "#1A1A1A",
           "dark": {
-            "backgroundColor": "#1D1D1F"
+            "backgroundColor": "#1A1A1A"
           }
         }
       ],
