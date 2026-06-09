@@ -22,7 +22,7 @@ function ThemedLayout() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#242424" }}>
+    <View style={{ flex: 1, backgroundColor: "#242424" , paddingTop: hp("3%"),}}>
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -68,7 +68,7 @@ function ThemedLayout() {
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
+      <ThemeProvider >
         <ThemedLayout />
       </ThemeProvider>
     </SafeAreaProvider>

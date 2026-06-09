@@ -17,12 +17,12 @@ const leftActive = bgWidth - ballWidth - 1;
 const Options = ({name,storageKey}) => {
     const { isDark,toggleTheme} = useTheme()
 
-    const [isChecked,setIsChecked] = useState(false)
+   
 
     const bgAnimation = useAnimatedStyle(()=>{
         return{
-            backgroundColor : withTiming(isChecked ? "#52aeff" : "whitesmoke" , {duration : 300 }),
-            borderColor : withTiming(isChecked ? "white" : "lightgray" , {duration : 300}),
+            backgroundColor : withTiming(isDark  ? "#52aeff" : "whitesmoke" , {duration : 300 }),
+            borderColor : withTiming(isDark  ? "white" : "lightgray" , {duration : 300}),
         };
     })
 
@@ -30,15 +30,15 @@ const Options = ({name,storageKey}) => {
 
     const ballAnimation  = useAnimatedStyle(()=>{
         return{
-            left : withTiming(isChecked ? leftActive : 0, {duration : 300}),
+            left : withTiming(isDark  ? leftActive : 0, {duration : 300}),
         
         };
     })
 
 
     const handleStorage = () => {
-            const newValue = !isChecked
-            setIsChecked(!isChecked)
+            const newValue = isDark 
+            
             if (storageKey === "theme") {
                 toggleTheme()
             } else {
@@ -47,17 +47,7 @@ const Options = ({name,storageKey}) => {
             }
         }
 
-    useEffect(()=>{
-            const storageGet = async (storageKey) => {
-                const value = await storageGetItem(storageKey)
-                if(value === true || value === false){
-                    setIsChecked(value)
-                }
-                
-            }
-         storageGet(storageKey);
-    }
-    ,[])
+
 
   return (
     <View style = {styles.bigContainer}>
