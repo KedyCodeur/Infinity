@@ -40,10 +40,7 @@ app-example
 
 # generated native folders
 /ios
-/android/
-
-!android/app/src/main/java/
-!android/app/src/main/AndroidManifest.xml
-!android/app/build.gradle
-!android/app/proguard-rules.pro
+/android/.gradle/
+/android/app/build/
+/android/build/
 
