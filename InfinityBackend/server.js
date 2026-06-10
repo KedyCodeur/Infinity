@@ -61,5 +61,5 @@ app.use("/product", productLimiter,verifyJWT, productRouter);
 
 
 app.listen(PORT,()=>{
-    console.log("http://localhost:" + PORT.toString());
+    
 });

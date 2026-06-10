@@ -38,7 +38,7 @@ const getProductByCodeBare = async (req, res) => {
 
     } catch (e) {
         return res.status(500).json({ err: "Server Error" });
-        console.log(e)
+        console.error(e)
     }
 };
 
@@ -75,7 +75,7 @@ const changeProductQuantity = async (req,res) => {
     }catch(e){
         
         return res.status(500).json({ err: "Server Error" });
-        console.log(e)
+        console.error(e)
     }
 
 }
@@ -115,7 +115,7 @@ const findProduct =  async (req,res) => {
     }catch(e){
         
         return res.status(500).json({ err: "Server Error" });
-        console.log(e)
+        console.error(e)
     }
 }
 
@@ -161,7 +161,7 @@ const changeProductPrice =  async (req,res) => {
         return res.status(200).json({succes : "Product price updated succesfuly"});
 
     }catch(e){
-        console.log(e)
+        console.error(e)
         return res.status(500).json({ err: "Server Error" });
     }
 }

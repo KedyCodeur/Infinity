@@ -78,8 +78,9 @@ const login =  async (req,res) =>{
        return res.json({"accessToken" : accessToken , "refreshToken" : refreshToken});
 
 
-    }catch{
+    }catch(e){
        return res.status(500).json({ err: "Server Error" });
+       console.error(e)
         }
         
 }
