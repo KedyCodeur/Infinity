@@ -142,7 +142,7 @@ const login = () => {
                         </View>
 
                         <View><Text style = {Styles.Label}>{t('Login.username')}</Text>
-                            <TextInput style = {Styles.Input} onChangeText={(text) => usernameRef.current = text}  />
+                            <TextInput style = {Styles.Input} onChangeText={(text) => usernameRef.current = text} autoCapitalize="none"  autoCorrect={false}  />
                         </View>
 
                         <View>
