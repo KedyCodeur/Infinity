@@ -1,16 +1,21 @@
 {
   "name": "infinitybackend",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
-  "type": "commonjs",
   "main": "server.js",
+  "bin": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "pkg . --targets node18-win-x64 --output dist/infinity.exe"
+  },
+  "pkg": {
+    "assets": [
+      "routers/**/*",
+      "controllers/**/*",
+      "models/**/*",
+      "middlewares/**/*",
+      "config/**/*"
+    ]
   },
   "dependencies": {
-    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "date-fns": "^4.2.1",
     "dotenv": "^17.4.2",

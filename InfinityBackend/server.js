@@ -1,14 +1,20 @@
-const path = require("path")
 const express  = require("express");
-require("dotenv").config({path : path.join(__dirname,".env")});
+const path = require('path');
+
+
+const rootDir = process.pkg 
+  ? path.dirname(process.execPath) 
+  : __dirname;
+
+require('dotenv').config({ path: path.join(rootDir, '.env') });
 
 const cors = require("cors");
 
-const authRouter = require(path.join(__dirname,"routers","auth.js"))
-const productRouter = require(path.join(__dirname,"routers","product.js"))
+const authRouter = require('./routers/auth.js');
+const productRouter = require('./routers/product.js');
 
-const jwtControllers = require(path.join(__dirname,"controllers","jwtControllers.js"))
-const verifyJWT = require(path.join(__dirname,"middlewares","verifyJWT.js"))
+const jwtControllers = require('./controllers/jwtControllers.js');
+const verifyJWT = require('./middlewares/verifyJWT.js');
 
 const PORT = process.env.PORT || 3500;
 const app = express();

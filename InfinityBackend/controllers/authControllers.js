@@ -1,11 +1,17 @@
 
-const bcrypt = require("bcrypt");
+
 const jwt = require("jsonwebtoken");
-const path = require("path");
+const path = require('path');
 
-const db = require(path.join(__dirname,"..","config","dbConnection.js"))
 
-require("dotenv").config({path : path.join(__dirname,"..",".env")});
+const rootDir = process.pkg 
+  ? path.dirname(process.execPath) 
+  : __dirname;
+
+require('dotenv').config({ path: path.join(rootDir, '.env') });
+
+const db = require('../config/dbConnection.js');
+
 
 const ACCESS_SIGN = process.env.ACCESS_SIGN;
 const REFRESH_SIGN = process.env.REFRESH_SIGN;
@@ -61,7 +67,7 @@ const login =  async (req,res) =>{
 
        const passwordHashed = userData[0].pass_word;
        
-       //if( !(await bcrypt.compare(password,passwordHashed) )) return res.status(401).json({ err: "Invalid credentials" });
+      
        let match = password.trim() === passwordHashed.trim();
        if(!match) return res.status(401).json({ err: "Invalid credentials" });
        

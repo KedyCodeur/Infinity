@@ -1,8 +1,8 @@
 const path = require("path");
 
-const bcrypt = require("bcrypt")
 
-const db = require(path.join(__dirname,"..","config","dbConnection.js"));
+
+const db = require('../config/dbConnection.js');
 
 
 
