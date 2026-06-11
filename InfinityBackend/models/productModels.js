@@ -36,11 +36,11 @@ const getProductByCodeBare = async (req, res) => {
 
         const promotionList = rows.filter(p => {
             if (p.dat_deb === "" || p.dat_deb == null) return false;
-            if (p.dat_fin === "" || p.dat_fin == null) return false;
+     
             const deb = new Date(p.dat_deb.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
-            const fin = new Date(p.dat_fin.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+            const fin = p.dat_fin ? new Date(p.dat_fin.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')) : null;
             const now = Date.now();
-            if (deb <= now && fin >= now) return true;
+            if (deb <= now && (fin ? fin >= now : true)) return true;
 
             return false;
         });
