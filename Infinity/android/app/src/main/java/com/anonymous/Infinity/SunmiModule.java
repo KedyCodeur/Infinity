@@ -231,7 +231,7 @@ public void print(ReadableMap infos, Promise promise) {
             rectPaint.setStyle(Paint.Style.FILL); 
             rectPaint.setStrokeWidth(2);    
 
-            canvas.drawRect(215, saveY - 38  , 384, saveY + 60, rectPaint);//98 height 
+            canvas.drawRect(210, saveY - 38  , 384, saveY + 60, rectPaint);//98 height 
 
 
             paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
@@ -274,8 +274,8 @@ public void print(ReadableMap infos, Promise promise) {
            //--------------------------------------------------------------------------------------------------
             if(!uniteType.isEmpty()){
                 paint.setColor(Color.BLACK);
-                paint.setTextSize(19);
-                canvas.drawText(contenu + " " + uniteType, 215 , yBottomValues , paint); 
+                paint.setTextSize(18);
+                canvas.drawText(contenu + " " + uniteType, 210 , yBottomValues , paint); 
                 float widthLeftPart = 384 - paint.measureText(pricePerKgL + " " + currency + "/" + uniteType); // 10 == space
 
                 

@@ -1,8 +1,8 @@
 const path = require("path");
 
-const bcrypt = require("bcrypt")
 
-const db = require(path.join(__dirname,"..","config","dbConnection.js"));
+
+const db = require('../config/dbConnection.js');
 
 
 
@@ -17,14 +17,14 @@ const getProductByCodeBare = async (req, res) => {
 
 
     const query = `
-        SELECT p.lib_prd, p.contenu, p.ref_prd, p.unite_contenu, tp.uprice_wt 
+        SELECT tp.dat_deb, tp.dat_fin, tp.dat_upd ,p.lib_prd, p.contenu, p.ref_prd, p.unite_contenu, tp.uprice_wt 
         FROM codebarres as codeB 
         LEFT JOIN produits as p ON codeB.id_prd = p.id
         LEFT JOIN tarifs_produits as tp ON codeB.id_prd = tp.id_prd
         WHERE codeB.cod_barr = ? 
-        LIMIT 1
     `;
 
+    
     try {
  
         const [rows] = await db.execute(query, [codeBar]);
@@ -34,11 +34,41 @@ const getProductByCodeBare = async (req, res) => {
             return res.status(404).json({ err: "Barcode not found" });
         }
 
-        return res.json(rows[0]);
+        const promotionList = rows.filter(p => {
+            if (p.dat_deb === "" || p.dat_deb == null) return false;
+            if (p.dat_fin === "" || p.dat_fin == null) return false;
+            const deb = new Date(p.dat_deb.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+            const fin = new Date(p.dat_fin.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+            const now = Date.now();
+            if (deb <= now && fin >= now) return true;
+
+            return false;
+        });
+
+        let tarif 
+
+        if(promotionList.length > 0) {
+            tarif = promotionList.reduce((latest, p) => {
+            return new Date(p.dat_upd) > new Date(latest.dat_upd) ? p : latest;
+        });
+        }else {
+            const defaultList = rows.filter(p => 
+                (p.dat_deb === "" || p.dat_deb == null) && (p.dat_fin === "" || p.dat_fin == null)
+            );
+            tarif = defaultList[0] ?? null;
+        }
+
+
+        if(!tarif){
+            tarif="empty" 
+        }
+
+        return res.json(tarif);
 
     } catch (e) {
+        console.error(e)
         return res.status(500).json({ err: "Server Error" });
-        console.log(e)
+        
     }
 };
 
@@ -75,7 +105,7 @@ const changeProductQuantity = async (req,res) => {
     }catch(e){
         
         return res.status(500).json({ err: "Server Error" });
-        console.log(e)
+        console.error(e)
     }
 
 }
@@ -115,7 +145,7 @@ const findProduct =  async (req,res) => {
     }catch(e){
         
         return res.status(500).json({ err: "Server Error" });
-        console.log(e)
+        console.error(e)
     }
 }
 
@@ -144,25 +174,71 @@ const changeProductPrice =  async (req,res) => {
     
     if(!regex.test(price)) return res.status(400).json({ err: "Bad Request" });
     
-    const query = `
-        UPDATE tarifs_produits tp
-        JOIN codebarres cb ON cb.id_prd = tp.id_prd
-        SET tp.uprice_wt = ?
-        WHERE cb.cod_barr = ?
-    `;
 
+    const getTax = ` 
+    Select tc.class_lab FROM codebarres AS cb
+    JOIN produits AS p ON cb.id_prd = p.id
+    JOIN tax_classes AS tc ON p.id_taxclass = tc.id
+    WHERE cb.cod_barr = ?
+    `
+    let taxRate
     try{
-
-        const [result] = await db.execute(query,[price,codeBar]);
-
-        if(result.affectedRows === 0){
-           return res.status(404).json({ err: "Barcode not found" });
-        }
-        return res.status(200).json({succes : "Product price updated succesfuly"});
+        
+    const [taxRateRaw] = await db.execute(getTax, [codeBar]);
+    taxRate = parseFloat(taxRateRaw[0].class_lab);
 
     }catch(e){
         console.log(e)
+        return res.status(404).json({err : "Invalid Data"})
+
+    }
+
+
+    const priceWithoutTax = (numPrice / (1 + taxRate / 100)).toFixed(2);
+
+
+    const query = `
+        UPDATE tarifs_produits tp
+        JOIN codebarres cb ON cb.id_prd = tp.id_prd
+        SET tp.uprice_wt = ? , tp.prix_u_ht = ?
+        WHERE cb.cod_barr = ? AND (dat_deb = '' OR tp.dat_deb IS NULL) AND (dat_fin = '' OR tp.dat_fin IS NULL)
+    `; // default price 
+
+    const dateUpdateTarif = `
+    UPDATE tarifs_produits
+    JOIN codebarres cb ON cb.id_prd = tarifs_produits.id_prd
+    SET tarifs_produits.dat_upd = NOW()
+    `;
+
+    const dateUpdateProd = `
+        UPDATE produits
+        JOIN codebarres cb ON cb.id_prd = produits.id
+        SET produits.dat_upd = NOW() 
+        WHERE cb.cod_barr = ?
+    `;
+
+    const conn = await db.getConnection();
+    try {
+        
+        await conn.beginTransaction();
+        const [result]  = await conn.execute(query,[price,priceWithoutTax,codeBar]);
+        const [result2] = await conn.execute(dateUpdateTarif, [codeBar]);
+        const [result3] = await conn.execute(dateUpdateProd, [codeBar]);
+
+        if (result.affectedRows === 0 || result2.affectedRows === 0 || result3.affectedRows === 0 ) {
+            await conn.rollback();
+            return res.status(404).json({ err: "Barcode not found" });
+        }
+
+        await conn.commit();
+        return res.status(200).json({ success: "Product price updated successfully" });
+
+    } catch (e) {
+        await conn.rollback(); 
+        console.error(e);
         return res.status(500).json({ err: "Server Error" });
+    }finally {
+    conn.release();
     }
 }
 

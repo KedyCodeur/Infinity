@@ -162,7 +162,7 @@ const createLabel = () => {
     try {
 
         const demande = await api.post(`/product/createLabel`, { codeBar: codeBare });
-    
+        console.log(demande.data)
         if (demande.status === 200 && demande.data){
             const product = demande.data;
             
@@ -217,17 +217,17 @@ const createLabel = () => {
                 }
 
 
-                contenu = parseFloat(parseFloat(product.contenu).toFixed(3)).toString();
+                contenu = parseFloat(product.contenu).toFixed(3);
 
                 if(unite_contenu.toLowerCase() == "gr"){
-                  contenu = parseFloat((parseFloat(contenu) / 1000).toFixed(3)).toString();
+                  contenu = (parseFloat(contenu) / 1000).toFixed(3);
                   unite_contenu = "Kg";
                 }
 
                 price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
-                pricePerKgL = parseFloat((price / parseFloat(contenu)).toFixed(2)).toString();
-                price = price.toString();
-
+                pricePerKgL = parseFloat((price / parseFloat(contenu))).toFixed(2);
+                price = parseFloat(price).toFixed(2);
+                
 
 
 
