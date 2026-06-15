@@ -47,11 +47,22 @@ const getProductByCodeBare = async (req, res) => {
 
         let tarif 
 
-        if(promotionList.length > 0) {
-            tarif = promotionList.reduce((latest, p) => {
-            return new Date(p.dat_upd) > new Date(latest.dat_upd) ? p : latest;
-        });
-        }else {
+            if (promotionList.length > 0) {
+                tarif = promotionList.reduce((latest, p) => {
+                const pDeb     = new Date(p.dat_deb.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+                const latestDeb = new Date(latest.dat_deb.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3'));
+
+                if (pDeb > latestDeb) return p;
+
+                if (pDeb.getTime() === latestDeb.getTime()) {
+                const pFin     = new Date(p.dat_fin      ? p.dat_fin.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')      : "9999-12-31");
+                const latestFin = new Date(latest.dat_fin ? latest.dat_fin.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3') : "9999-12-31");
+                return pFin < latestFin ? p : latest;
+                }
+
+                return latest; 
+            });
+            }else {
             const defaultList = rows.filter(p => 
                 (p.dat_deb === "" || p.dat_deb == null) && (p.dat_fin === "" || p.dat_fin == null)
             );
