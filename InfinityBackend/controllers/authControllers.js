@@ -2,6 +2,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const { SpecialEncode } = require("../utils/loginHash");
 
 const db = require(path.join(__dirname,"..","config","dbConnection.js"))
 
@@ -43,7 +44,7 @@ const login =  async (req,res) =>{
     const username = req.body.username;
     const password = req.body.password;
 
-  
+    
     if(!username || !password ){
        return res.status(400).json({ err: "Credentials cannot be empty" });
     }
@@ -61,8 +62,9 @@ const login =  async (req,res) =>{
 
        const passwordHashed = userData[0].pass_word;
        
-       //if( !(await bcrypt.compare(password,passwordHashed) )) return res.status(401).json({ err: "Invalid credentials" });
-       let match = password.trim() === passwordHashed.trim();
+       
+       const passwordEncoded = SpecialEncode.encode(password);
+       let match = passwordEncoded.trim() === passwordHashed.trim();
        if(!match) return res.status(401).json({ err: "Invalid credentials" });
        
 

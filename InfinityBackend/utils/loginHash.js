@@ -1,4 +1,4 @@
-class AkeadEncryption {
+class SpecialEncode {
 
     static LC_KEY5 = "A45Pas9S9"; 
 
@@ -41,4 +41,4 @@ class AkeadEncryption {
 let testMetni = "1234";
 let jsCiktisi = AkeadEncryption.encode(testMetni);
 
-console.log("PHP ile %100 Aynı Olan JS Çıktısı:", jsCiktisi);
+module.exports = {SpecialEncode}
