@@ -200,7 +200,7 @@ const createLabel = () => {
 
 
             let unite_contenu = product.unite_contenu ?? "" ;
-            const listUniteCalculate = ["l","kg","gr"];
+            const listUniteCalculate = ["l","kg","gr","u"];
 
             if(!listUniteCalculate.includes(unite_contenu.toLowerCase())){
                unite_contenu = "";
@@ -216,18 +216,28 @@ const createLabel = () => {
                   });
                 }
 
-
-                contenu = parseFloat(product.contenu).toFixed(3);
-
-                if(unite_contenu.toLowerCase() == "gr"){
-                  contenu = (parseFloat(contenu) / 1000).toFixed(3);
-                  unite_contenu = "Kg";
+                if(unite_contenu.toLowerCase() == "u"){
+                  contenu = String(parseInt(product.contenu, 10));
+                }else{
+                  contenu = parseFloat(product.contenu).toFixed(3);
                 }
-
-                price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
-                pricePerKgL = parseFloat((price / parseFloat(contenu))).toFixed(2);
-                price = parseFloat(price).toFixed(2);
                 
+
+                if(unite_contenu.toLowerCase() !== "u"){
+                  if(unite_contenu.toLowerCase() == "gr"){
+                    contenu = (parseFloat(contenu) / 1000).toFixed(3);
+                    unite_contenu = "Kg";
+                  }
+
+                  price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
+                  pricePerKgL = parseFloat((price / parseFloat(contenu))).toFixed(2);
+                  price = parseFloat(price).toFixed(2);
+                
+                }else{
+                  price = parseFloat(parseFloat(product.uprice_wt)).toFixed(2);
+                  pricePerKgL = parseFloat(price).toFixed(2);
+                  price = parseFloat(price).toFixed(2);
+                }
 
 
 
