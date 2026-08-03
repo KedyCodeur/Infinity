@@ -7,7 +7,7 @@ const db = require('../config/dbConnection.js');
 
 
 const getProductByCodeBare = async (req, res) => {
-
+    console.log("evet burdasın")
     
     const codeBar = req.body.codeBar?.trim();
 
@@ -21,7 +21,7 @@ const getProductByCodeBare = async (req, res) => {
         FROM codebarres as codeB 
         LEFT JOIN produits as p ON codeB.id_prd = p.id
         LEFT JOIN tarifs_produits as tp ON codeB.id_prd = tp.id_prd
-        WHERE codeB.cod_barr = ? 
+        WHERE codeB.cod_barr = ?  AND tp.typ_trf IN ("4M")
     `;
 
     
@@ -135,7 +135,7 @@ const findProduct =  async (req,res) => {
         FROM codebarres cb
         LEFT JOIN produits p ON cb.id_prd = p.id
         LEFT JOIN tarifs_produits tp ON cb.id_prd = tp.id_prd
-        WHERE cb.cod_barr = ?
+        WHERE cb.cod_barr = ? AND tp.typ_trf IN ("4M")
         LIMIT 1
     `;
 
@@ -190,12 +190,16 @@ const changeProductPrice =  async (req,res) => {
     Select tc.class_lab FROM codebarres AS cb
     JOIN produits AS p ON cb.id_prd = p.id
     JOIN tax_classes AS tc ON p.id_taxclass = tc.id
-    WHERE cb.cod_barr = ?
+    WHERE cb.cod_barr = ?   
     `
     let taxRate
     try{
         
     const [taxRateRaw] = await db.execute(getTax, [codeBar]);
+
+    if (!taxRateRaw || taxRateRaw.length === 0) {
+    return res.status(404).json({ err: "Barcode or Tax data not found" });
+    }
     taxRate = parseFloat(taxRateRaw[0].class_lab);
 
     }catch(e){
@@ -212,13 +216,14 @@ const changeProductPrice =  async (req,res) => {
         UPDATE tarifs_produits tp
         JOIN codebarres cb ON cb.id_prd = tp.id_prd
         SET tp.uprice_wt = ? , tp.prix_u_ht = ?
-        WHERE cb.cod_barr = ? AND (dat_deb = '' OR tp.dat_deb IS NULL) AND (dat_fin = '' OR tp.dat_fin IS NULL)
+        WHERE cb.cod_barr = ? AND (dat_deb = '' OR tp.dat_deb IS NULL) AND (dat_fin = '' OR tp.dat_fin IS NULL) AND tp.typ_trf IN ("4M")
     `; // default price 
 
     const dateUpdateTarif = `
-    UPDATE tarifs_produits
-    JOIN codebarres cb ON cb.id_prd = tarifs_produits.id_prd
-    SET tarifs_produits.dat_upd = NOW()
+        UPDATE tarifs_produits tp
+        JOIN codebarres cb ON cb.id_prd = tp.id_prd
+        SET tp.dat_upd = NOW()
+        WHERE cb.cod_barr = ? AND tp.typ_trf IN ("4M")
     `;
 
     const dateUpdateProd = `
