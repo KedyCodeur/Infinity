@@ -14,7 +14,7 @@ const refresh = (req,res) => {
 
     const refreshToken = req.body.refreshToken;
 
-    if(!refreshToken) return res.status(400).json({err : "Refresh Token can not be empty"});
+    if(!refreshToken.trim()) return res.status(400).json({err : "Refresh Token can not be empty"});
 
     jwt.verify(
         refreshToken,
@@ -26,7 +26,7 @@ const refresh = (req,res) => {
                 const accessToken = jwt.sign(
                     {"username" : username},
                     ACCESS_SIGN,
-                    {expiresIn : "300s"}
+                    {expiresIn : "5m"}
                 )
 
                 res.json({"accessToken" : accessToken})

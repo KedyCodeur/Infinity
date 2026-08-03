@@ -5,8 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import HeaderLogin from "@/components/HeaderLogin"
 import { useTranslation } from 'react-i18next';
 import {useRouter} from "expo-router"
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+
 import getApi from "@/utils/api.js"
 import {storageGetItem,storageSetItem} from "@/utils/storage.js"
 import { KeyboardAvoidingView, Platform } from 'react-native';
@@ -29,18 +30,19 @@ const login = () => {
 
 
     const { t, i18n } = useTranslation();
+
     const colorPressed = "#0676b9"
-    const [isActive,setIsActive] = useState(false);
+
     const [isShowing , setIsShowing] = useState(false);
     const [isRememberMe , setIsRememberMe] = useState(false);
     
 
     const  [webAdressValue,setWebAdressValue]= useState("");
+    
     const usernameRef = useRef("");
     const passwordRef = useRef("");
 
     useEffect(()=>{
-
         const getWebAdress = async () => {
           const webAdress =   await storageGetItem("webAdress")
           setWebAdressValue(webAdress)
@@ -74,7 +76,9 @@ const login = () => {
                 refToken.current = data.refreshToken;
             }
             await storageSetItem("accessToken",data.accessToken);
+
             let msg = t("LoginNotif.OK_200") + " " + (decoded?.username || "");
+
             Toast.show({type : "success" , text1 : msg})
      
             router.replace("/mainContent/createLabel")

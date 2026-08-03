@@ -9,48 +9,48 @@ const flag2Height = hp("6%") * 2.5
 
 const HeaderSideLi = ({name,content,isTheFirst,lang}) => {
 
-const [isActive,setIsActive] = useState(false);
+    const [isActive,setIsActive] = useState(false);
 
-const [contentHeight,setContentHeight] = useState(0);
+    const [contentHeight,setContentHeight] = useState(0);
 
-const {isFlagClicked,setIsFlagClicked} = lang;
+    const {isFlagClicked,setIsFlagClicked} = lang;
 
-const animatedContentHeight = useAnimatedStyle(() => {
-   const extra = isFlagClicked ?  flag2Height : 0
-   return {
-    
-      height: withTiming(
-         isActive ? contentHeight  + extra : 0,
-         { duration: 300 }
-      ),
-      overflow:  "hidden"
-   };
-});
-
-const animatedArrow = useAnimatedStyle(()=>{
-
-    return{
-        transform : [{rotateZ : withTiming(isActive ?  "90deg" : "0deg",{duration : 200})}]
+    const animatedContentHeight = useAnimatedStyle(() => {
+    const extra = isFlagClicked ?  flag2Height : 0
+    return {    
+        
+        height: withTiming(
+            isActive ? contentHeight  + extra : 0,
+            { duration: 300 }
+        ),
+        overflow:  "hidden"
     };
-})  
+    });
 
- return (
-    <View style = {[styles.bigContainer , {marginTop : isTheFirst ? hp("13%") : 0}] }  >
-    <Pressable style = {styles.pressable} onPress={()=>{setIsActive(!isActive)}}>
-      <AnimatedImage source={require("@/assets/arrow.png")} style = {[animatedArrow,styles.arrowIcon]}/> 
-      <Text style = {styles.name}>{name}</Text>
-    </Pressable>
-    
-    <Animated.View style={{ position: "absolute", opacity: 0, zIndex: -1 }} onLayout={(e) => setContentHeight(e.nativeEvent.layout.height) } pointerEvents={"none"} >
-       { content}
-    </Animated.View>
+    const animatedArrow = useAnimatedStyle(()=>{
 
-    <Animated.View style = {animatedContentHeight}>
-       { content}
-    </Animated.View>
-    
-    </View>
-  )
+        return{
+            transform : [{rotateZ : withTiming(isActive ?  "90deg" : "0deg",{duration : 200})}]
+        };
+    })  
+
+    return (
+        <View style = {[styles.bigContainer , {marginTop : isTheFirst ? hp("13%") : 0}] }  >
+        <Pressable style = {styles.pressable} onPress={()=>{setIsActive(!isActive)}}>
+        <AnimatedImage source={require("@/assets/arrow.png")} style = {[animatedArrow,styles.arrowIcon]}/> 
+        <Text style = {styles.name}>{name}</Text>
+        </Pressable>
+        
+        <Animated.View style={{ position: "absolute", opacity: 0, zIndex: -1 }} onLayout={(e) => setContentHeight(e.nativeEvent.layout.height) } pointerEvents={"none"} >
+        { content}
+        </Animated.View>
+
+        <Animated.View style = {animatedContentHeight}>
+        { content}
+        </Animated.View>
+        
+        </View>
+    )
 }
 
 export default HeaderSideLi

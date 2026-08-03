@@ -37,8 +37,8 @@ const getApi = async () => {
         return Promise.reject(error);
       }
 
-      if (error.response?.status === 403 && !originalRequest._retry) {
-        originalRequest._retry = true;
+      if (error.response?.status === 403 && !originalRequest.Again) {
+        originalRequest.Again = true;
 
         try {
           const refreshToken = await getRefToken();

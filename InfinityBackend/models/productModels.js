@@ -7,7 +7,6 @@ const db = require('../config/dbConnection.js');
 
 
 const getProductByCodeBare = async (req, res) => {
-    console.log("evet burdasın")
     
     const codeBar = req.body.codeBar?.trim();
 
@@ -15,9 +14,8 @@ const getProductByCodeBare = async (req, res) => {
         return res.status(400).json({ err: "codeBar can not be empty" });
     }
 
-
     const query = `
-        SELECT tp.dat_deb, tp.dat_fin, tp.dat_upd ,p.lib_prd, p.contenu, p.ref_prd, p.unite_contenu, tp.uprice_wt 
+        SELECT tp.dat_deb, tp.dat_fin,p.lib_prd, p.contenu, p.ref_prd, p.unite_contenu, tp.uprice_wt 
         FROM codebarres as codeB 
         LEFT JOIN produits as p ON codeB.id_prd = p.id
         LEFT JOIN tarifs_produits as tp ON codeB.id_prd = tp.id_prd
@@ -154,7 +152,7 @@ const findProduct =  async (req,res) => {
         return res.status(200).json({success: "Product Found" ,  ...result[0]});
 
     }catch(e){
-        
+    
         return res.status(500).json({ err: "Server Error" });
         console.error(e)
     }
@@ -163,7 +161,7 @@ const findProduct =  async (req,res) => {
 const changeProductPrice =  async (req,res) => {
 
     const codeBar = req.body.codeBar?.trim();
-    let price = req.body.price;
+    let price = req.body.price?.trim();
 
     if (!codeBar) {
         return res.status(400).json({ err: "codeBar can not be empty" });
@@ -175,13 +173,13 @@ const changeProductPrice =  async (req,res) => {
     
 
     price =  price.toString().replace(/,/g, ".");
-
+        
     const numPrice = Number(price);
 
     if (isNaN(numPrice) || numPrice < 0 || numPrice > 15000) return res.status(400).json({ err: "Bad Request" })
     
 
-    const regex = /^\d+(\.\d+)?$/;
+    const regex = /^\d+(\.\d+)?$/; 
     
     if(!regex.test(price)) return res.status(400).json({ err: "Bad Request" });
     
@@ -193,6 +191,7 @@ const changeProductPrice =  async (req,res) => {
     WHERE cb.cod_barr = ?   
     `
     let taxRate
+
     try{
         
     const [taxRateRaw] = await db.execute(getTax, [codeBar]);
@@ -234,6 +233,7 @@ const changeProductPrice =  async (req,res) => {
     `;
 
     const conn = await db.getConnection();
+    
     try {
         
         await conn.beginTransaction();

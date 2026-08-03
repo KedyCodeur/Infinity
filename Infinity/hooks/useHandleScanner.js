@@ -12,14 +12,17 @@ const useHandleScanner = (onScan, inputRef) => {
       const listener = DeviceEventEmitter.addListener('onBarcodeScanned', (barcode) => {
         onScanRef.current(barcode);
       });
+
       return () => {
         listener.remove();
+        
         if (inputRef?.current) {
           inputRef.current.blur();
         }
       };
+
     }, [])
   );
-};
+};  
 
 export default useHandleScanner;

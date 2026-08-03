@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable , FlatList , NativeModules , Image ,Keyboard} from 'react-native'
-import React, { useState , useRef , useEffect , useCallback} from 'react'
+import { StyleSheet, Text, View ,ScrollView, TextInput, Pressable  , NativeModules , Image ,Keyboard} from 'react-native'
+import React, { useState , useRef , useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Header from "@/components/Header"
 import { useTranslation } from 'react-i18next'
@@ -11,7 +11,7 @@ import Toast from 'react-native-toast-message';
 import useHandleScanner from '@/hooks/useHandleScanner';
 import { isProcessingRef } from '../../utils/isProcessingRef';
 
-const {SunmiCustom} = NativeModules;
+const {SunmiCustom} = NativeModules;  
 
 const AnimatedTextInput = Animated.createAnimatedComponent(TextInput)
 
@@ -134,6 +134,7 @@ const createLabel = () => {
 
 
   const [isProcessing, setIsProcessing] = useState(false);
+
   const inputRef = useRef(null);
 
   const setProcessing = async (bool) => {
@@ -162,7 +163,7 @@ const createLabel = () => {
     try {
 
         const demande = await api.post(`/product/createLabel`, { codeBar: codeBare });
-        console.log(demande.data)
+
         if (demande.status === 200 && demande.data){
             const product = demande.data;
             
@@ -191,7 +192,7 @@ const createLabel = () => {
             }
 
             let nameProduct = product.lib_prd.replace(/\\n/g, " ").replace(/\n/g, " ");
-    
+
 
             let price ;
             let contenu;
@@ -217,7 +218,7 @@ const createLabel = () => {
                 }
 
                 if(unite_contenu.toLowerCase() == "u"){
-                  contenu = String(parseInt(product.contenu, 10));
+                  contenu = String(parseInt(product.contenu));
                 }else{
                   contenu = parseFloat(product.contenu).toFixed(3);
                 }

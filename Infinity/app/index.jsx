@@ -15,8 +15,14 @@ export default function Index() {
             if(token){
                 try{
                     
-                    const decoded =  jwtDecode(token);
+                    
 
+                    const decoded =  jwtDecode(token);
+                    const isValid = decoded.exp > Date.now() / 1000
+                    if(!isValid){
+                            await SecureStore.deleteItemAsync('refreshToken');
+                            return router.replace("/login")         
+                    }
                     let msg = t("LoginNotif.OK_200") + " " + (decoded?.username || "");
                     Toast.show({type : "success" , text1 : msg})
                     router.replace("/mainContent/createLabel")

@@ -1,7 +1,7 @@
-
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 const path = require("path");
+
 const { SpecialEncode } = require("../utils/loginHash");
 
 const db = require(path.join(__dirname,"..","config","dbConnection.js"))
@@ -16,7 +16,7 @@ const createAccessToken = (username) => {
     const token = jwt.sign(
         {"username" : username},
         ACCESS_SIGN,
-        {expiresIn : "300s"} //5 min
+        {expiresIn : "5m"} 
     )
 
     return token;
@@ -28,7 +28,7 @@ const createRefreshToken = (username) => {
     const token = jwt.sign(
         {"username" : username},
         REFRESH_SIGN,
-        {expiresIn : "604800s"} // 7 days
+        {expiresIn : "7d"} 
     )
 
     return token;
@@ -39,23 +39,20 @@ const createRefreshToken = (username) => {
 const login =  async (req,res) =>{
 
    
-    const rawData = req.body;
-
     const username = req.body.username;
     const password = req.body.password;
 
     
-    if(!username || !password ){
+    if(!username.trim() || !password.trim() ){
        return res.status(400).json({ err: "Credentials cannot be empty" });
     }
     // c ou on va chercher l'utilisateur via son username et puis le controle 
-
-    
 
     try{
 
        const query = "SELECT pass_word FROM sev_user WHERE BINARY  login = ?"
        
+
        const [userData] =  await db.execute(query,[username]);
 
        if(userData.length === 0) return res.status(401).json({ err: "Invalid credentials" });
@@ -64,7 +61,9 @@ const login =  async (req,res) =>{
        
        
        const passwordEncoded = SpecialEncode.encode(password);
+
        let match = passwordEncoded.trim() === passwordHashed.trim();
+       
        if(!match) return res.status(401).json({ err: "Invalid credentials" });
        
 
