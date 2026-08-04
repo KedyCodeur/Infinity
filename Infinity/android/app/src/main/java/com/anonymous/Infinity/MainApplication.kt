@@ -20,11 +20,11 @@ import expo.modules.ReactNativeHostWrapper
 
 class MainApplication : Application(), ReactApplication {
 
-    @JvmField  // ← eklendi
+    @JvmField  
     var sunmiPrinter: SunmiPrinterService? = null
 
     companion object {
-        @JvmStatic  // ← eklendi
+        @JvmStatic  
         lateinit var instance: MainApplication
             private set
     }
@@ -66,15 +66,15 @@ class MainApplication : Application(), ReactApplication {
             InnerPrinterManager.getInstance().bindService(this, object : InnerPrinterCallback() {
                 override fun onConnected(service: SunmiPrinterService) {
                     sunmiPrinter = service
-                    android.util.Log.d("SUNMI", "Yazıcı bağlandı!") // ← ekle
+                    android.util.Log.d("printer connected")
                 }
                 override fun onDisconnected() {
                     sunmiPrinter = null
-                    android.util.Log.d("SUNMI", "Yazıcı bağlantısı kesildi!") // ← ekle
+                    android.util.Log.d("SUNMI", "printer disconnected") 
                 }
             })
         } catch (e: InnerPrinterException) {
-            android.util.Log.e("SUNMI", "Bağlantı hatası: ${e.message}") // ← ekle
+            android.util.Log.e("SUNMI", "connection error: ${e.message}") 
             e.printStackTrace()
         }
     }

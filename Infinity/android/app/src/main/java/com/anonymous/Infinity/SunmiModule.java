@@ -71,11 +71,7 @@ private void sendEvent(String eventName, String data) {
         .emit(eventName, data);
 }
 
-public void onScanResult(int code, String barcode) { 
-    if (barcode != null) {
-        sendEvent("onBarcodeScanned", barcode);
-    }
-}
+
 
 public static Bitmap createBarCode(String barcode) {
     try {
@@ -119,7 +115,7 @@ public static Bitmap createBarCode(String barcode) {
     public void drawDashedLine(Canvas canvas, float startX, float startY, float endX, float endY, Paint paint) {
 
         paint.setPathEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
-        
+       
         canvas.drawLine(startX, startY, endX, endY, paint);
         
         paint.setPathEffect(null);

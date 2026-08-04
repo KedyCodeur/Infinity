@@ -4,7 +4,8 @@ import { storageGetItem, storageSetItem } from "@/utils/storage.js";
 import * as SecureStore from 'expo-secure-store';
 
 import { refToken } from '@/utils/refToken';
-let apiInstance = null;
+
+let apiRef = null;
 
 const getRefToken = async () => {
   const token = refToken.current || await SecureStore.getItemAsync('refreshToken');
@@ -12,7 +13,7 @@ const getRefToken = async () => {
 }
 
 const getApi = async () => {
-  if (apiInstance) return apiInstance;
+  if (apiRef) return apiRef;
 
   const webAdress = await storageGetItem("webAdress");
 
@@ -20,15 +21,15 @@ const getApi = async () => {
 
   const baseURL = "http://" + webAdress;
 
-  apiInstance = axios.create({ baseURL, timeout: 2000});
+  apiRef = axios.create({ baseURL, timeout: 2000});
 
-  apiInstance.interceptors.request.use(async (config) => {
+  apiRef.interceptors.request.use(async (config) => {
     const token =  await storageGetItem("accessToken");
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   });
 
-  apiInstance.interceptors.response.use(
+  apiRef.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
@@ -53,7 +54,7 @@ const getApi = async () => {
      
 
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return apiInstance(originalRequest);
+          return apiRef(originalRequest);
           
         } catch (e) {
           await AsyncStorage.removeItem("accessToken");
@@ -67,7 +68,7 @@ const getApi = async () => {
     }
   );
 
-  return apiInstance;
+  return apiRef;
 };
 
 export default getApi;
