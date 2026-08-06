@@ -2,7 +2,8 @@
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
-require("dotenv").config({path : path.join(__dirname,"..",".env")})
+const rootDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, "..");
+require("dotenv").config({ path: path.join(rootDir, ".env") });
 
 const ACCESS_SIGN = process.env.ACCESS_SIGN;
 const REFRESH_SIGN = process.env.REFRESH_SIGN;

@@ -2,7 +2,7 @@ const path = require("path");
 
 
 
-const db = require('../config/dbConnection.js');
+const db = require("../config/dbConnection.js");
 
 
 

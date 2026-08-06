@@ -13,15 +13,18 @@ const getRefToken = async () => {
 }
 
 const getApi = async () => {
-  if (apiRef) return apiRef;
+  
 
   const webAdress = await storageGetItem("webAdress");
 
   if (!webAdress) throw new Error("webAdress not found");
+  
+  const cleanAddress = webAdress.replace(/^https?:\/\//, "");
+  const baseURL = "https://" + cleanAddress;
+  
+  if (apiRef && apiRef.defaults.baseURL === baseURL) return apiRef;
 
-  const baseURL = "http://" + webAdress;
-
-  apiRef = axios.create({ baseURL, timeout: 2000});
+  apiRef = axios.create({ baseURL, timeout: 2500,headers: { 'ngrok-skip-browser-warning': 'true' }});
 
   apiRef.interceptors.request.use(async (config) => {
     const token =  await storageGetItem("accessToken");
@@ -44,9 +47,10 @@ const getApi = async () => {
         try {
           const refreshToken = await getRefToken();
           const webAdress = await storageGetItem("webAdress");
-          const baseURL = "http://" + webAdress;
+          const cleanAddress = webAdress.replace(/^https?:\/\//, "");
+          const baseURL = "https://" + cleanAddress;
 
-          const res = await axios.post(`${baseURL}/refresh`, { refreshToken });
+          const res = await axios.post(`${baseURL}/refresh`, { refreshToken },{ headers: { 'ngrok-skip-browser-warning': 'true' } });
           const newToken = res.data.accessToken;
 
           await storageSetItem("accessToken", newToken);

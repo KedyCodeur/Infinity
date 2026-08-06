@@ -2,11 +2,12 @@ const jwt = require("jsonwebtoken");
 
 const path = require("path");
 
-const { SpecialEncode } = require("../utils/loginHash");
+const AkeadEncryption = require("../utils/loginHash");
 
-const db = require(path.join(__dirname,"..","config","dbConnection.js"))
+const db = require("../config/dbConnection.js");
 
-require("dotenv").config({path : path.join(__dirname,"..",".env")});
+const rootDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, "..");
+require("dotenv").config({ path: path.join(rootDir, ".env") });
 
 const ACCESS_SIGN = process.env.ACCESS_SIGN;
 const REFRESH_SIGN = process.env.REFRESH_SIGN;
@@ -59,8 +60,9 @@ const login =  async (req,res) =>{
 
        const passwordHashed = userData[0].pass_word;
        
-       
-       const passwordEncoded = SpecialEncode.encode(password);
+       console.log("sa")
+       const passwordEncoded = AkeadEncryption.encode(password);
+     
 
        let match = passwordEncoded.trim() === passwordHashed.trim();
        
@@ -73,7 +75,8 @@ const login =  async (req,res) =>{
        return res.json({"accessToken" : accessToken , "refreshToken" : refreshToken});
 
 
-    }catch{
+    }catch(e){
+        console.log(e)
        return res.status(500).json({ err: "Server Error" });
         }
         
