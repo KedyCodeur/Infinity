@@ -4,7 +4,8 @@ import { storageGetItem, storageSetItem } from "@/utils/storage.js";
 import * as SecureStore from 'expo-secure-store';
 
 import { refToken } from '@/utils/refToken';
-let apiInstance = null;
+
+let apiRef = null;
 
 const getRefToken = async () => {
   const token = refToken.current || await SecureStore.getItemAsync('refreshToken');
@@ -12,23 +13,26 @@ const getRefToken = async () => {
 }
 
 const getApi = async () => {
-  if (apiInstance) return apiInstance;
+  
 
   const webAdress = await storageGetItem("webAdress");
 
   if (!webAdress) throw new Error("webAdress not found");
+  
+  const cleanAddress = webAdress.replace(/^https?:\/\//, "");
+  const baseURL = "https://" + cleanAddress;
+  
+  if (apiRef && apiRef.defaults.baseURL === baseURL) return apiRef;
 
-  const baseURL = "http://" + webAdress;
+  apiRef = axios.create({ baseURL, timeout: 2500,headers: { 'ngrok-skip-browser-warning': 'true' }});
 
-  apiInstance = axios.create({ baseURL, timeout: 2000});
-
-  apiInstance.interceptors.request.use(async (config) => {
+  apiRef.interceptors.request.use(async (config) => {
     const token =  await storageGetItem("accessToken");
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   });
 
-  apiInstance.interceptors.response.use(
+  apiRef.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
@@ -37,15 +41,16 @@ const getApi = async () => {
         return Promise.reject(error);
       }
 
-      if (error.response?.status === 403 && !originalRequest._retry) {
-        originalRequest._retry = true;
+      if (error.response?.status === 403 && !originalRequest.Again) {
+        originalRequest.Again = true;
 
         try {
           const refreshToken = await getRefToken();
           const webAdress = await storageGetItem("webAdress");
-          const baseURL = "http://" + webAdress;
+          const cleanAddress = webAdress.replace(/^https?:\/\//, "");
+          const baseURL = "https://" + cleanAddress;
 
-          const res = await axios.post(`${baseURL}/refresh`, { refreshToken });
+          const res = await axios.post(`${baseURL}/refresh`, { refreshToken },{ headers: { 'ngrok-skip-browser-warning': 'true' } });
           const newToken = res.data.accessToken;
 
           await storageSetItem("accessToken", newToken);
@@ -53,7 +58,7 @@ const getApi = async () => {
      
 
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return apiInstance(originalRequest);
+          return apiRef(originalRequest);
           
         } catch (e) {
           await AsyncStorage.removeItem("accessToken");
@@ -67,7 +72,7 @@ const getApi = async () => {
     }
   );
 
-  return apiInstance;
+  return apiRef;
 };
 
 export default getApi;

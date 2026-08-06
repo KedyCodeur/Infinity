@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+
 import 'react-native-reanimated';
 import '@/i18next/i18.js';
 import { heightPercentageToDP as hp } from 'react-native-responsive-screen';
@@ -8,15 +8,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useTheme, ThemeProvider } from '@/context/themeContext';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { StatusBar as RNStatusBar, View } from 'react-native';
+import {View } from 'react-native';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+
 
 function ThemedLayout() {
   const { t } = useTranslation();
-  const [isVisible, setIsVisible] = useState(true);
+
   const theme = useTheme();
   const isDark = theme?.isDark ?? false;
   const insets = useSafeAreaInsets();
@@ -31,7 +29,7 @@ function ThemedLayout() {
             backgroundColor: isDark ? "#0676b9" : "#0398D5",
             borderTopColor: "#333",
             height: hp("9%") + insets.bottom,
-            display: isVisible ? "flex" : "none",
+            display: "flex",
             paddingBottom: insets.bottom + hp("0.5%"),
             paddingTop: hp("1%"),
           },

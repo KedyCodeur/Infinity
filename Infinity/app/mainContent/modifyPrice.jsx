@@ -33,7 +33,7 @@ const ModifyPrice = () => {
 
   const [price,setPrice] = useState("");
   const [avoidDuplicate,setAvoidDuplicate] = useState("");
-  const [productName,setProductName] = useState("TADIM PEPITE NOIRE GRILLE SALLEE 270GR");
+  const [productName,setProductName] = useState("");
   
   const [codeBare , setCodeBare] = useState("");
    const [codeBareRef , setCodeBareRef] = useState("");
@@ -314,7 +314,7 @@ const handleModifyPrice_2 = async () => {
               >
                 <Text  style = {[styles.productName, theme.productName ]}>{productName}</Text>
               <View style = {styles.containerInput}>
-                <AnimatedTextInput value={price} style = {[styles.inputModify,inputAnimationModify,theme.inputModify]}
+                <AnimatedTextInput  style = {[styles.inputModify,inputAnimationModify,theme.inputModify]}
                     value={price === 0 ? "" : String(price)} 
                     onChangeText={(text) => setPrice(text)}
                     onFocus={() => setIsFocusedModify(true)}

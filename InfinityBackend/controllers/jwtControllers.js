@@ -2,7 +2,8 @@
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
-require("dotenv").config({path : path.join(__dirname,"..",".env")})
+const rootDir = process.pkg ? path.dirname(process.execPath) : path.join(__dirname, "..");
+require("dotenv").config({ path: path.join(rootDir, ".env") });
 
 const ACCESS_SIGN = process.env.ACCESS_SIGN;
 const REFRESH_SIGN = process.env.REFRESH_SIGN;
@@ -14,7 +15,7 @@ const refresh = (req,res) => {
 
     const refreshToken = req.body.refreshToken;
 
-    if(!refreshToken) return res.status(400).json({err : "Refresh Token can not be empty"});
+    if(!refreshToken.trim()) return res.status(400).json({err : "Refresh Token can not be empty"});
 
     jwt.verify(
         refreshToken,
@@ -26,7 +27,7 @@ const refresh = (req,res) => {
                 const accessToken = jwt.sign(
                     {"username" : username},
                     ACCESS_SIGN,
-                    {expiresIn : "300s"}
+                    {expiresIn : "5m"}
                 )
 
                 res.json({"accessToken" : accessToken})

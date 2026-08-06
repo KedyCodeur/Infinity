@@ -11,7 +11,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import com.sunmi.peripheral.printer.InnerResultCallback;
+
 
 
 import android.graphics.Bitmap;
@@ -71,11 +71,7 @@ private void sendEvent(String eventName, String data) {
         .emit(eventName, data);
 }
 
-public void onScanResult(int code, String barcode) { 
-    if (barcode != null) {
-        sendEvent("onBarcodeScanned", barcode);
-    }
-}
+
 
 public static Bitmap createBarCode(String barcode) {
     try {
@@ -119,7 +115,7 @@ public static Bitmap createBarCode(String barcode) {
     public void drawDashedLine(Canvas canvas, float startX, float startY, float endX, float endY, Paint paint) {
 
         paint.setPathEffect(new DashPathEffect(new float[]{10f, 5f}, 0f));
-        
+       
         canvas.drawLine(startX, startY, endX, endY, paint);
         
         paint.setPathEffect(null);
@@ -153,6 +149,7 @@ public void print(ReadableMap infos, Promise promise) {
             String[] priceSeparated = price.split("\\.");
 
             int space = 0;
+
             StaticLayout layout = createStaticLayout(productName);
 
             int lines = layout.getLineCount();
@@ -169,10 +166,12 @@ public void print(ReadableMap infos, Promise promise) {
           
             Bitmap label = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(label);
+
             canvas.drawColor(Color.WHITE);
 
             
             Paint paint = new Paint();
+
             paint.setColor(Color.BLACK);
             paint.setAntiAlias(true);
 
@@ -192,6 +191,7 @@ public void print(ReadableMap infos, Promise promise) {
             canvas.translate(3, y);
             layout.draw(canvas); 
             canvas.restore();
+
             y += layout.getHeight() + space;
 
             int barcodeWidth = 196; 
@@ -204,7 +204,7 @@ public void print(ReadableMap infos, Promise promise) {
                
 
             paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-            int xRefCode = (int)   ((barcodeWidth - refCodeWidth) / 2) ;
+            int xRefCode = (int) ((barcodeWidth - refCodeWidth) / 2) ;
 
             int xBarCodeText = (int)   ((barcodeWidth - barCodeTextWidth) / 2) ;
 
@@ -214,7 +214,9 @@ public void print(ReadableMap infos, Promise promise) {
             y += 1;
 
             int saveY = y;
+
             Bitmap barcode = createBarCode(barcodeValue);
+
             if (barcode != null) {
                 canvas.drawBitmap(barcode, x, y, null);
                 y += barcode.getHeight() + 21;
@@ -244,14 +246,15 @@ public void print(ReadableMap infos, Promise promise) {
 
             paint.setTextSize(44);
             Paint.FontMetrics part2FM = paint.getFontMetrics();
+            
             float part2Height = part2FM.descent - part2FM.ascent;
-            float part2Width = paint.measureText(priceSeparated[1]);
+            float part2Width = paint.measureText(priceSeparated[1]); 
 
             paint.setStyle(Paint.Style.FILL);
             paint.setStrokeWidth(0);
 
             paint.setTextSize(38);
-            Paint.FontMetrics part3FM = paint.getFontMetrics();
+            Paint.FontMetrics part3FM = paint.getFontMetrics(); // €
             float part3Height= part3FM.descent - part3FM.ascent;
             
             float partSpace = 1;
@@ -261,7 +264,7 @@ public void print(ReadableMap infos, Promise promise) {
             float marginRight = 10;
 
             paint.setColor(Color.WHITE);
-            paint.setTextSize(49);
+            paint.setTextSize(49);  
             canvas.drawText(priceSeparated[0] + ".", 384 - allWidthPrice - marginRight, saveY - 38 + centerRect + - part3FM.ascent + partSpace   - part1FM.ascent , paint); 
 
 

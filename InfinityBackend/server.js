@@ -1,22 +1,21 @@
-const path = require("path")
-const express  = require("express");
-require("dotenv").config({path : path.join(__dirname,".env")});
-
+const path = require("path");
+const express = require("express");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 
-const authRouter = require(path.join(__dirname,"routers","auth.js"))
-const productRouter = require(path.join(__dirname,"routers","product.js"))
+const rootDir = process.pkg ? path.dirname(process.execPath) : __dirname;
+require("dotenv").config({ path: path.join(rootDir, ".env") });
 
-const jwtControllers = require(path.join(__dirname,"controllers","jwtControllers.js"))
-const verifyJWT = require(path.join(__dirname,"middlewares","verifyJWT.js"))
+const authRouter = require("./routers/auth.js");
+const productRouter = require("./routers/product.js");
+
+const jwtControllers = require("./controllers/jwtControllers.js");
+const verifyJWT = require("./middlewares/verifyJWT.js");
 
 const PORT = process.env.PORT || 3500;
 const app = express();
-const rateLimit = require("express-rate-limit");
 
-whiteList = []
-
-
+const whiteList = [];
 
 app.use(cors());
 
@@ -51,7 +50,19 @@ app.post("/refresh",refreshLimiter,jwtControllers.refresh)
 app.use("/product", productLimiter,verifyJWT, productRouter);
 
 
+app.use((err, req, res, next) => {
+  console.error("🔥 Global Hata Yakalandı:", err.stack || err.message);
 
+  // Eğer hatada özel bir durum kodu yoksa varsayılan 500 (Server Error) ver
+  const statusCode = err.statusCode || err.status || 500;
+
+  res.status(statusCode).json({
+    success: false,
+    err: err.message || "Sunucuda beklenmeyen bir hata oluştu.",
+    // Geliştirme aşamasındaysan detay görmek için:
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
+});
 
 
 app.listen(PORT,()=>{

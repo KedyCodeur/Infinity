@@ -14,8 +14,8 @@
     "android": {
       "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
-      "foregroundImage": "./assets/images/logoIcon.png",  // şeffaf bg'li olan
-      "backgroundColor": "#1D1D1F"
+        "foregroundImage": "./assets/images/logoIcon.png",
+        "backgroundColor": "#1D1D1F"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -40,7 +40,9 @@
         }
       ],
       "expo-localization",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
