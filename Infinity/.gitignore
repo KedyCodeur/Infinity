@@ -39,13 +39,13 @@ loginHash.js
 
 app-example
 
-
 # generated native folders
 /ios
-/android/
 
-!android/app/src/main/java/
-!android/app/src/main/AndroidManifest.xml
-!android/app/build.gradle
-!android/app/proguard-rules.pro
-
+# Android build/cache artifacts (auto-generated, don't track)
+/android/build/
+/android/app/build/
+/android/.gradle/
+/android/.cxx/
+/android/local.properties
+/android/app/.cxx/
