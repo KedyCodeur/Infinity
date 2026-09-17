@@ -161,7 +161,7 @@ const findProduct =  async (req,res) => {
 const changeProductPrice =  async (req,res) => {
 
     const codeBar = req.body.codeBar?.trim();
-    let price = req.body.price?.trim();
+    let price = req.body.price;
 
     if (!codeBar) {
         return res.status(400).json({ err: "codeBar can not be empty" });
